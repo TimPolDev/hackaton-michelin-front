@@ -53,7 +53,22 @@ export default function AmbassadorsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {ambassadors.map((ambassador) => (
-            <Card key={ambassador.id}>
+            <Card
+              key={ambassador.id}
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => router.push(`/ambassadors/${ambassador.id}`)}
+            >
+              {/* Photo principale */}
+              {ambassador.photoUrl && (
+                <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                  <img
+                    src={ambassador.photoUrl}
+                    alt={ambassador.cyclist.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
               <CardHeader>
                 <CardTitle>{ambassador.cyclist.fullName}</CardTitle>
                 <CardDescription>
@@ -61,7 +76,7 @@ export default function AmbassadorsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm mb-4">{ambassador.bio}</p>
+                <p className="text-sm mb-4 line-clamp-3">{ambassador.bio}</p>
 
                 {ambassador.stats && (
                   <div className="bg-blue-50 p-3 rounded-md mb-4 text-sm">
@@ -76,14 +91,29 @@ export default function AmbassadorsPage() {
                   </div>
                 )}
 
-                {ambassador.tires?.map((tireInfo: any) => (
-                  <div key={tireInfo.bikeType} className="border-t pt-3 mt-3">
-                    <p className="font-semibold text-sm">{tireInfo.tire.rangeName}</p>
-                    <p className="text-xs text-muted-foreground italic mt-1">
-                      "{tireInfo.testimonial}"
-                    </p>
+                {ambassador.tires && ambassador.tires.length > 0 && (
+                  <div className="border-t pt-3 mt-3">
+                    <p className="text-xs text-muted-foreground mb-2">Pneus recommandés :</p>
+                    {ambassador.tires.slice(0, 2).map((tireInfo: any) => (
+                      <div key={tireInfo.bikeType} className="mb-2">
+                        <p className="font-semibold text-sm">{tireInfo.tire.rangeName}</p>
+                        <p className="text-xs text-muted-foreground italic line-clamp-2">
+                          "{tireInfo.testimonial}"
+                        </p>
+                      </div>
+                    ))}
+                    {ambassador.tires.length > 2 && (
+                      <p className="text-xs text-blue-600 mt-2">+ {ambassador.tires.length - 2} autre(s)</p>
+                    )}
                   </div>
-                ))}
+                )}
+
+                <Button variant="outline" className="w-full mt-4" onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/ambassadors/${ambassador.id}`);
+                }}>
+                  Voir le profil
+                </Button>
               </CardContent>
             </Card>
           ))}
