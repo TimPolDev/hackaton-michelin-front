@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Michelin Bike - Frontend Next.js
 
-## Getting Started
+Application web complète pour la recommandation de pneus cyclistes basée sur les données Strava.
 
-First, run the development server:
+## 🎯 Architecture Frontend Complète
+
+### Pages Créées (11 pages)
+
+#### Authentification
+- `/` - Landing page avec présentation
+- `/login` - Connexion utilisateur
+- `/signup` - Inscription
+- `/onboarding` - Configuration du profil (BikeTypes, préférences)
+
+#### Dashboard Utilisateur
+- `/dashboard` - Tableau de bord avec statistiques, recommandations, et bannière Strava
+
+#### Gestion des Clubs
+- `/clubs` - Liste des clubs de l'utilisateur
+- `/clubs/create` - Création d'un nouveau club
+- `/clubs/[id]` - Détail d'un club (stats, classement, invitations)
+- `/clubs/join/[code]` - Rejoindre un club via code d'invitation
+
+#### Ambassadeurs
+- `/ambassadors` - Galerie des ambassadeurs Michelin
+
+#### Intégration Strava
+- `/strava/connect` - Connexion OAuth Strava et import d'activités
+
+#### Administration Michelin
+- `/admin` - Dashboard admin pour gérer ambassadeurs et clubs
+
+## 🚀 Installation et Démarrage
+
+### Prérequis
+- Node.js 18+
+- npm ou yarn
+- Backend NestJS lancé sur `http://localhost:3001`
+- Compte Supabase configuré
+
+### Installation
+
+```bash
+cd hackaton-michelin-front
+npm install
+```
+
+### Configuration
+
+Créer un fichier `.env.local` :
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://viwlkozcralohiitwqdp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# API Backend
+NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+```
+
+### Lancement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'application sera accessible sur `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🏗️ Structure du Projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+hackaton-michelin-front/
+├── app/
+│   ├── (auth)/
+│   │   ├── login/page.tsx
+│   │   └── signup/page.tsx
+│   ├── admin/page.tsx
+│   ├── ambassadors/page.tsx
+│   ├── clubs/
+│   │   ├── page.tsx
+│   │   ├── create/page.tsx
+│   │   ├── [id]/page.tsx
+│   │   └── join/[code]/page.tsx
+│   ├── dashboard/page.tsx
+│   ├── onboarding/page.tsx
+│   ├── strava/connect/page.tsx
+│   ├── page.tsx (landing)
+│   ├── layout.tsx
+│   ├── providers.tsx
+│   └── globals.css
+├── components/
+│   └── ui/
+│       ├── button.tsx
+│       ├── card.tsx
+│       └── input.tsx
+├── lib/
+│   ├── api/
+│   │   └── client.ts (Axios avec JWT interceptors)
+│   ├── supabase/
+│   │   ├── client.ts (Browser client)
+│   │   └── server.ts (Server client)
+│   └── utils.ts
+└── package.json
+```
 
-## Learn More
+## 🔐 Authentification
 
-To learn more about Next.js, take a look at the following resources:
+L'application utilise **Supabase Auth** pour l'authentification :
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Inscription** (`/signup`) - Création de compte
+2. **Connexion** (`/login`) - Authentification
+3. **Onboarding** (`/onboarding`) - Configuration du profil après inscription
+4. **JWT automatique** - Le client API injecte automatiquement le token JWT dans les requêtes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

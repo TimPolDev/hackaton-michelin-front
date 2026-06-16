@@ -67,6 +67,9 @@ export default function DashboardPage() {
               <Button variant="ghost" onClick={() => router.push('/ambassadors')}>
                 Ambassadeurs
               </Button>
+              <Button variant="ghost" onClick={() => router.push('/admin')}>
+                Admin
+              </Button>
               <Button variant="outline" onClick={handleLogout}>
                 Déconnexion
               </Button>
@@ -84,6 +87,25 @@ export default function DashboardPage() {
             Voici votre tableau de bord personnalisé
           </p>
         </div>
+
+        {!cyclist?.stravaId && (
+          <Card className="mb-8 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold mb-1">Connectez votre compte Strava</h3>
+                <p className="text-sm text-muted-foreground">
+                  Importez vos activités pour obtenir des recommandations personnalisées
+                </p>
+              </div>
+              <Button
+                onClick={() => router.push('/strava/connect')}
+                className="bg-[#FC4C02] hover:bg-[#E34402] text-white"
+              >
+                Connecter Strava
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
