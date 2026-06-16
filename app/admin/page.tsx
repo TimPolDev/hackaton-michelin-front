@@ -6,6 +6,10 @@ import { api } from '@/lib/api/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CyclistSelect } from '@/components/admin/CyclistSelect';
+import { TireSelector, TireAssignment } from '@/components/admin/TireSelector';
+import { ImageUploader } from '@/components/admin/ImageUploader';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 interface Ambassador {
   id: string;
@@ -38,7 +42,14 @@ export default function AdminPage() {
     discipline: '',
     skillLevel: 'PROFESSIONAL',
     bio: '',
+    photoUrl: '',
+    photos: [] as string[],
+    articleContent: '',
+    showRidingData: false,
+    featuredSegments: '',
+    isFeatured: false,
   });
+  const [tireAssignments, setTireAssignments] = useState<TireAssignment[]>([]);
 
   useEffect(() => {
     loadData();
@@ -64,9 +75,33 @@ export default function AdminPage() {
   const handleCreateAmbassador = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/ambassadors', newAmbassador);
-      setNewAmbassador({ cyclistId: '', discipline: '', skillLevel: 'PROFESSIONAL', bio: '' });
+      // Create ambassador profile
+      const response = await api.post('/ambassadors', newAmbassador);
+      const ambassadorId = response.data.id;
+
+      // Create tire assignments
+      for (const assignment of tireAssignments) {
+        if (assignment.tireId && assignment.bikeType && assignment.testimonial) {
+          await api.post(`/ambassadors/${ambassadorId}/tires`, assignment);
+        }
+      }
+
+      // Reset form
+      setNewAmbassador({
+        cyclistId: '',
+        discipline: '',
+        skillLevel: 'PROFESSIONAL',
+        bio: '',
+        photoUrl: '',
+        photos: [],
+        articleContent: '',
+        showRidingData: false,
+        featuredSegments: '',
+        isFeatured: false,
+      });
+      setTireAssignments([]);
       loadData();
+      alert('Ambassadeur créé avec succès !');
     } catch (error: any) {
       alert(error.response?.data?.message || 'Erreur lors de la création');
     }
@@ -137,21 +172,22 @@ export default function AdminPage() {
                 <CardDescription>Ajouter un nouveau cycliste ambassadeur Michelin</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleCreateAmbassador} className="space-y-4">
+                <form onSubmit={handleCreateAmbassador} className="space-y-6">
+                  {/* Sélection du cycliste */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Cycliste</label>
+                    <CyclistSelect
+                      value={newAmbassador.cyclistId}
+                      onChange={(cyclistId) => setNewAmbassador({ ...newAmbassador, cyclistId })}
+                    />
+                  </div>
+
+                  {/* Informations de base */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">ID du cycliste</label>
-                      <Input
-                        placeholder="UUID du cycliste"
-                        value={newAmbassador.cyclistId}
-                        onChange={(e) => setNewAmbassador({ ...newAmbassador, cyclistId: e.target.value })}
-                        required
-                      />
-                    </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Discipline</label>
                       <Input
-                        placeholder="Ex: Route, VTT..."
+                        placeholder="Ex: Course sur route, VTT cross-country..."
                         value={newAmbassador.discipline}
                         onChange={(e) => setNewAmbassador({ ...newAmbassador, discipline: e.target.value })}
                         required
@@ -169,19 +205,88 @@ export default function AdminPage() {
                         <option value="AMATEUR">Amateur</option>
                       </select>
                     </div>
-                    <div className="space-y-2 col-span-2">
-                      <label className="text-sm font-medium">Bio</label>
+                  </div>
+
+                  {/* Bio */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Bio</label>
+                    <textarea
+                      className="w-full p-2 border rounded-md"
+                      rows={3}
+                      placeholder="Biographie courte de l'ambassadeur..."
+                      value={newAmbassador.bio}
+                      onChange={(e) => setNewAmbassador({ ...newAmbassador, bio: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  {/* Photos */}
+                  <ImageUploader
+                    mainPhotoUrl={newAmbassador.photoUrl}
+                    additionalPhotos={newAmbassador.photos}
+                    onMainPhotoChange={(url) => setNewAmbassador({ ...newAmbassador, photoUrl: url || '' })}
+                    onAdditionalPhotosChange={(photos) => setNewAmbassador({ ...newAmbassador, photos })}
+                  />
+
+                  {/* Article */}
+                  {/* <div className="space-y-2">
+                    <label className="text-sm font-medium">Article</label>
+                    <RichTextEditor
+                      content={newAmbassador.articleContent}
+                      onChange={(content) => setNewAmbassador({ ...newAmbassador, articleContent: content })}
+                      placeholder="Écrivez un article détaillé sur l'ambassadeur..."
+                    />
+                  </div> */}
+
+                  {/* Tire assignments */}
+                  <TireSelector
+                    assignments={tireAssignments}
+                    onChange={setTireAssignments}
+                  />
+
+                  {/* Options avancées */}
+                  <div className="space-y-3 border-t pt-4">
+                    <h4 className="font-medium">Options d'affichage</h4>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="showRidingData"
+                        checked={newAmbassador.showRidingData}
+                        onChange={(e) => setNewAmbassador({ ...newAmbassador, showRidingData: e.target.checked })}
+                        className="rounded"
+                      />
+                      <label htmlFor="showRidingData" className="text-sm">
+                        Afficher les données de roulage Strava
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="isFeatured"
+                        checked={newAmbassador.isFeatured}
+                        onChange={(e) => setNewAmbassador({ ...newAmbassador, isFeatured: e.target.checked })}
+                        className="rounded"
+                      />
+                      <label htmlFor="isFeatured" className="text-sm">
+                        Mettre en avant sur la page d'accueil
+                      </label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Segments remarquables (optionnel)</label>
                       <textarea
                         className="w-full p-2 border rounded-md"
-                        rows={3}
-                        placeholder="Biographie de l'ambassadeur..."
-                        value={newAmbassador.bio}
-                        onChange={(e) => setNewAmbassador({ ...newAmbassador, bio: e.target.value })}
-                        required
+                        rows={2}
+                        placeholder="Performances et segments notables..."
+                        value={newAmbassador.featuredSegments}
+                        onChange={(e) => setNewAmbassador({ ...newAmbassador, featuredSegments: e.target.value })}
                       />
                     </div>
                   </div>
-                  <Button type="submit">Créer l'ambassadeur</Button>
+
+                  <Button type="submit" className="w-full">Créer l'ambassadeur</Button>
                 </form>
               </CardContent>
             </Card>
@@ -203,13 +308,22 @@ export default function AdminPage() {
                           </p>
                           <p className="text-sm mt-2">{ambassador.bio}</p>
                         </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteAmbassador(ambassador.id)}
-                        >
-                          Supprimer
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push(`/admin/ambassadors/${ambassador.id}`)}
+                          >
+                            Éditer
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteAmbassador(ambassador.id)}
+                          >
+                            Supprimer
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
