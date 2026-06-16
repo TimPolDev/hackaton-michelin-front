@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,16 +23,24 @@ export default function SignupPage() {
 
     const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/onboarding`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
       },
     });
 
     if (error) {
       setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // When email confirmation is enabled, there is no active session yet.
+    // The user must click the confirmation link before completing onboarding.
+    if (!data.session) {
+      setSuccess(true);
       setLoading(false);
       return;
     }
@@ -52,6 +61,16 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {success ? (
+            <div className="bg-green-50 text-green-700 p-4 rounded-md text-sm text-center space-y-1">
+              <p className="font-medium">Vérifiez votre boîte mail</p>
+              <p>
+                Un email de confirmation a été envoyé à <strong>{email}</strong>.
+                Cliquez sur le lien pour activer votre compte et compléter votre
+                profil.
+              </p>
+            </div>
+          ) : (
           <form onSubmit={handleSignup} className="space-y-4">
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
@@ -94,6 +113,7 @@ export default function SignupPage() {
               {loading ? 'Création...' : 'Créer mon compte'}
             </Button>
           </form>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-muted-foreground text-center">
