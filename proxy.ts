@@ -27,7 +27,43 @@ export async function proxy(request: NextRequest) {
 
   // Refresh the session so it stays valid (do not run code between
   // createServerClient and getUser, per Supabase SSR guidance).
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Protect /admin routes: require auth + admin role from the backend.
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const backendUrl =
+        process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1';
+
+      const meResponse = await fetch(`${backendUrl}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      });
+
+      if (!meResponse.ok) {
+        throw new Error('Failed to fetch user role');
+      }
+
+      const userData = await meResponse.json();
+
+      if (!userData.isAdmin) {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   return supabaseResponse;
 }
