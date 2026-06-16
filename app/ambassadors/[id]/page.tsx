@@ -46,23 +46,10 @@ export default function AmbassadorDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <h1 className="text-2xl font-bold text-primary">Michelin Bike</h1>
-            <div className="flex gap-4">
-              <Button variant="ghost" onClick={() => router.push('/ambassadors')}>
-                Ambassadeurs
-              </Button>
-              <Button variant="ghost" onClick={() => router.push('/dashboard')}>
-                Dashboard
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Button variant="ghost" className="mb-4" onClick={() => router.push('/ambassadors')}>
+          ← Ambassadeurs
+        </Button>
         {/* En-tête avec photo principale */}
         <Card className="mb-6 overflow-hidden">
           {ambassador.photoUrl && (

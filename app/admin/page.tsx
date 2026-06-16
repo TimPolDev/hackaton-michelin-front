@@ -129,25 +129,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b-4 border-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Michelin Bike Admin</h1>
-              <p className="text-xs text-muted-foreground">Panneau d'administration</p>
-            </div>
-            <div className="flex gap-4">
-              <Button variant="ghost" onClick={() => router.push('/dashboard')}>
-                Dashboard Cycliste
-              </Button>
-              <Button variant="outline" onClick={() => router.push('/login')}>
-                Déconnexion
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex gap-4">
           <Button

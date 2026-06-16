@@ -12,8 +12,39 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Michelin Bike - Recommandations Pneus',
-  description: 'Trouvez le pneu Michelin parfait pour votre pratique cycliste',
+  title: {
+    default: 'PaceLine — La communauté cycliste Michelin',
+    template: '%s · PaceLine',
+  },
+  description:
+    'Rejoignez PaceLine, la plateforme cycliste Michelin : créez ou rejoignez des clubs, suivez vos itinéraires et le classement, échangez avec les ambassadeurs et trouvez les pneus parfaits pour votre pratique.',
+  keywords: [
+    'PaceLine',
+    'Michelin',
+    'cyclisme',
+    'vélo',
+    'clubs cyclistes',
+    'itinéraires',
+    'classement',
+    'ambassadeurs',
+    'pneus vélo',
+  ],
+  applicationName: 'PaceLine',
+  authors: [{ name: 'Michelin' }],
+  openGraph: {
+    title: 'PaceLine — La communauté cycliste Michelin',
+    description:
+      'Clubs, itinéraires, classements et ambassadeurs : la communauté cycliste réunie sur PaceLine.',
+    siteName: 'PaceLine',
+    type: 'website',
+    locale: 'fr_FR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PaceLine — La communauté cycliste Michelin',
+    description:
+      'Clubs, itinéraires, classements et ambassadeurs : la communauté cycliste Michelin.',
+  },
 };
 
 export default function RootLayout({

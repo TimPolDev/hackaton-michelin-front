@@ -32,17 +32,6 @@ export default function AmbassadorsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <h1 className="text-2xl font-bold text-primary">Michelin Bike</h1>
-            <Button variant="ghost" onClick={() => router.push('/dashboard')}>
-              Dashboard
-            </Button>
-          </div>
-        </div>
-      </nav>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold">Ambassadeurs Michelin</h2>

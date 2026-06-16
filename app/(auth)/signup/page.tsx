@@ -57,7 +57,7 @@ export default function SignupPage() {
             Créer un compte
           </CardTitle>
           <CardDescription className="text-center">
-            Rejoignez la communauté Michelin Bike
+            Rejoignez la communauté PaceLine
           </CardDescription>
         </CardHeader>
         <CardContent>

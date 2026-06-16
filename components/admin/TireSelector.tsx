@@ -86,7 +86,7 @@ export function TireSelector({ assignments, onChange }: TireSelectorProps) {
         <button
           type="button"
           onClick={addAssignment}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-michelin-blue-dark text-white rounded-md hover:bg-michelin-blue-dark/90"
         >
           + Ajouter un pneu
         </button>

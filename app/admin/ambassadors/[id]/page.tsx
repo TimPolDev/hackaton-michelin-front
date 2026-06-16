@@ -131,23 +131,10 @@ export default function EditAmbassadorPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b-4 border-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-primary">Michelin Bike Admin</h1>
-              <p className="text-xs text-muted-foreground">Édition d'ambassadeur</p>
-            </div>
-            <div className="flex gap-4">
-              <Button variant="outline" onClick={() => router.push('/admin')}>
-                ← Retour
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Button variant="outline" className="mb-4" onClick={() => router.push('/admin')}>
+          ← Retour
+        </Button>
         <Card>
           <CardHeader>
             <CardTitle>Modifier l'ambassadeur</CardTitle>
