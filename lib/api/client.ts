@@ -31,7 +31,7 @@ api.interceptors.request.use(async (config) => {
     console.warn('Could not get auth session:', error);
   }
 
-  console.log('Making request to:', config.baseURL + config.url);
+  console.log('Making request to:', `${config.baseURL ?? ''}${config.url ?? ''}`);
   return config;
 }, (error) => {
   console.error('Request interceptor error:', error);

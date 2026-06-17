@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function StravaConnectPage() {
+function StravaConnectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -140,5 +140,13 @@ export default function StravaConnectPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function StravaConnectPage() {
+  return (
+    <Suspense fallback={null}>
+      <StravaConnectContent />
+    </Suspense>
   );
 }
