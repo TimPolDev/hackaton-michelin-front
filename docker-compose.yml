@@ -1,0 +1,26 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: michelin-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      # Inside Docker, reach the backend container by its service name
+      # (not localhost). The back's compose service is named "backend".
+      - NEXT_PUBLIC_API_URL=http://backend:3001/api/v1
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
+    networks:
+      - michelin-network
+
+networks:
+  michelin-network:
+    external: true
