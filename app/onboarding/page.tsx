@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
+import type { BikeType } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,10 +57,10 @@ export default function OnboardingPage() {
     setError('');
 
     try {
-      await api.post('/auth/complete-profile', {
+      await backend.auth.completeProfile({
         fullName,
         bikeTypes: selectedBikeTypes,
-        primaryBikeType,
+        primaryBikeType: primaryBikeType as BikeType,
         practiceStyle,
         preferences,
       });

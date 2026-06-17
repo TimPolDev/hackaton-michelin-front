@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,11 +59,12 @@ export default function AdminPage() {
     try {
       setLoading(true);
       if (activeTab === 'ambassadors') {
-        const res = await api.get('/ambassadors');
-        setAmbassadors(res.data);
+        const data = await backend.ambassadors.list();
+        setAmbassadors(data);
       } else {
-        const res = await api.get('/clubs');
-        setClubs(res.data);
+        // TODO(back): pas d'endpoint admin GET /clubs (liste de tous les clubs).
+        // À ajouter côté back puis exposer via backend.clubs.listAll().
+        setClubs([]);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -76,13 +77,13 @@ export default function AdminPage() {
     e.preventDefault();
     try {
       // Create ambassador profile
-      const response = await api.post('/ambassadors', newAmbassador);
-      const ambassadorId = response.data.id;
+      const created = await backend.ambassadors.create(newAmbassador);
+      const ambassadorId = created.id;
 
       // Create tire assignments
       for (const assignment of tireAssignments) {
         if (assignment.tireId && assignment.bikeType && assignment.testimonial) {
-          await api.post(`/ambassadors/${ambassadorId}/tires`, assignment);
+          await backend.ambassadors.addTire(ambassadorId, assignment);
         }
       }
 
@@ -110,7 +111,7 @@ export default function AdminPage() {
   const handleDeleteAmbassador = async (id: string) => {
     if (!confirm('Voulez-vous vraiment supprimer cet ambassadeur ?')) return;
     try {
-      await api.delete(`/ambassadors/${id}`);
+      await backend.ambassadors.remove(id);
       loadData();
     } catch (error) {
       alert('Erreur lors de la suppression');
@@ -120,7 +121,7 @@ export default function AdminPage() {
   const handleDeleteClub = async (id: string) => {
     if (!confirm('Voulez-vous vraiment supprimer ce club ?')) return;
     try {
-      await api.delete(`/clubs/${id}`);
+      await backend.clubs.remove(id);
       loadData();
     } catch (error) {
       alert('Erreur lors de la suppression');

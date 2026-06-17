@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -34,11 +34,9 @@ function StravaConnectContent() {
       setLoading(true);
       setImportProgress('Connexion à Strava...');
 
-      // Exchange code for access token and import activities
-      await api.post('/strava/callback', { code });
-
+      // connect-strava échange le code ET importe les activités en une étape.
       setImportProgress('Importation des activités...');
-      await api.post('/strava/import');
+      await backend.activities.connectStrava(code);
 
       setSuccess(true);
       setImportProgress('Activités importées avec succès !');
@@ -56,8 +54,8 @@ function StravaConnectContent() {
   const initiateStravaConnection = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/strava/auth-url');
-      window.location.href = res.data.authUrl;
+      const { url } = await backend.activities.stravaAuthorizeUrl();
+      window.location.href = url;
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors de la connexion');
       setLoading(false);

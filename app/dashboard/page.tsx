@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Hero from './components/hero';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -25,15 +26,15 @@ export default function DashboardPage() {
           return;
         }
 
-        const [cyclistRes, statsRes, recsRes] = await Promise.all([
-          api.get('/cyclists/me'),
-          api.get('/cyclists/me/stats'),
-          api.get('/recommendations'),
+        const [cyclistData, statsData, recsData] = await Promise.all([
+          backend.cyclists.me(),
+          backend.cyclists.stats(),
+          backend.recommendations.list(),
         ]);
 
-        setCyclist(cyclistRes.data);
-        setStats(statsRes.data);
-        setRecommendations(recsRes.data);
+        setCyclist(cyclistData);
+        setStats(statsData);
+        setRecommendations(recsData);
       } catch (error) {
         console.error('Error loading dashboard:', error);
       } finally {
@@ -50,16 +51,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Hero/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold">
-            Bonjour, {cyclist?.fullName || 'Cycliste'} !
-          </h2>
-          <p className="text-muted-foreground">
-            Voici votre tableau de bord personnalisé
-          </p>
-        </div>
-
         {!cyclist?.stravaId && (
           <Card className="mb-8 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
             <CardContent className="flex items-center justify-between p-6">

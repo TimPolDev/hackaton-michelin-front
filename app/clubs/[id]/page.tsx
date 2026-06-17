@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,17 +46,17 @@ export default function ClubDetailPage() {
   const loadClubData = async () => {
     try {
       setLoading(true);
-      const [clubRes, statsRes] = await Promise.all([
-        api.get(`/clubs/${clubId}`),
-        api.get(`/clubs/${clubId}/stats`),
+      // GET /clubs/:id renvoie déjà { ...club, memberCount, stats } : pas d'appel séparé.
+      const [clubData, cyclistData] = await Promise.all([
+        backend.clubs.get(clubId),
+        backend.cyclists.me(),
       ]);
 
-      setClub(clubRes.data);
-      setStats(statsRes.data);
+      setClub(clubData);
+      setStats(clubData.stats ?? null);
 
       // Check if current user is manager
-      const cyclistRes = await api.get('/cyclists/me');
-      const membership = cyclistRes.data.clubMemberships?.find(
+      const membership = cyclistData.clubMemberships?.find(
         (m: any) => m.club.id === clubId
       );
       setIsManager(membership?.isManager || false);
@@ -76,13 +76,9 @@ export default function ClubDetailPage() {
   };
 
   const handleLeaveClub = async () => {
-    if (!confirm('Voulez-vous vraiment quitter ce club ?')) return;
-    try {
-      await api.delete(`/clubs/${clubId}/leave`);
-      router.push('/clubs');
-    } catch (error) {
-      alert('Erreur lors de la sortie du club');
-    }
+    // TODO(back): aucun endpoint "quitter un club" n'existe (DELETE /clubs/:id/leave absent).
+    // À implémenter côté back, puis exposer via backend.clubs.leave(clubId).
+    alert('Fonctionnalité indisponible : endpoint back manquant.');
   };
 
   if (loading) {
@@ -197,7 +193,7 @@ export default function ClubDetailPage() {
                         <div>
                           <p className="font-semibold">{entry.cyclistName}</p>
                           <p className="text-xs text-muted-foreground">
-                            {entry.distance.toFixed(0)} km • {entry.elevation.toFixed(0)} m D+
+                            {(entry.distance ?? 0).toFixed(0)} km • {(entry.elevation ?? 0).toFixed(0)} m D+
                           </p>
                         </div>
                       </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -17,8 +17,8 @@ export default function AmbassadorDetailPage() {
   useEffect(() => {
     const loadAmbassador = async () => {
       try {
-        const res = await api.get(`/ambassadors/${ambassadorId}`);
-        setAmbassador(res.data);
+        const data = await backend.ambassadors.get(ambassadorId);
+        setAmbassador(data);
       } catch (error) {
         console.error('Error loading ambassador:', error);
       } finally {

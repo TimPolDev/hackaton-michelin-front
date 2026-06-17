@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -14,8 +14,8 @@ export default function ClubsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await api.get('/cyclists/me');
-        setCyclist(res.data);
+        const data = await backend.cyclists.me();
+        setCyclist(data);
       } catch (error) {
         console.error('Error loading clubs:', error);
       } finally {

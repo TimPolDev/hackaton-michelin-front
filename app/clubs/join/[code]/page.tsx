@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -26,32 +26,18 @@ export default function JoinClubPage() {
 
   useEffect(() => {
     if (!inviteCode) return;
-    loadClubInfo();
+    // TODO(back): pas d'endpoint de preview (GET /clubs/by-invite/:code).
+    // On affiche directement l'écran d'adhésion ; les détails du club arrivent
+    // dans la réponse de join.
+    setClub({ id: '', name: 'ce club', description: '', bikeTypes: null });
+    setLoading(false);
   }, [inviteCode]);
-
-  const loadClubInfo = async () => {
-    try {
-      setLoading(true);
-      // Try to get club info from invite code
-      // This endpoint might not exist yet, so we'll handle the error
-      const res = await api.get(`/clubs/by-invite/${inviteCode}`);
-      setClub(res.data);
-    } catch (err: any) {
-      if (err.response?.status === 404) {
-        setError('Code d\'invitation invalide ou expiré');
-      } else {
-        setError('Erreur lors du chargement des informations du club');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleJoin = async () => {
     try {
       setJoining(true);
-      await api.post(`/clubs/join/${inviteCode}`);
-      router.push(`/clubs/${club?.id}`);
+      const result = await backend.clubs.joinByToken(inviteCode);
+      router.push(`/clubs/${result.club?.id ?? ''}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors de l\'adhésion au club');
       setJoining(false);

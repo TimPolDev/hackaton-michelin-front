@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Select, SelectOption } from '../ui/select';
 
 interface Tire {
@@ -42,8 +42,8 @@ export function TireSelector({ assignments, onChange }: TireSelectorProps) {
   const loadTires = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/tires');
-      setTires(response.data.tires || []);
+      const data = await backend.tires.list();
+      setTires(data.tires || []);
     } catch (err) {
       console.error('Error loading tires:', err);
     } finally {

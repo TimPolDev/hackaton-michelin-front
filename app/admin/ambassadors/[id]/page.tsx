@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,8 +41,7 @@ export default function EditAmbassadorPage() {
   const loadAmbassador = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/ambassadors/${ambassadorId}`);
-      const data = res.data;
+      const data = await backend.ambassadors.get(ambassadorId);
 
       setCyclistInfo({
         fullName: data.cyclist.fullName || 'N/A',
@@ -86,7 +85,7 @@ export default function EditAmbassadorPage() {
     try {
       // Update ambassador profile (don't send cyclistId as it's not updatable)
       const { cyclistId, ...updateData } = ambassador;
-      await api.put(`/ambassadors/${ambassadorId}`, updateData);
+      await backend.ambassadors.update(ambassadorId, updateData);
 
       // Handle tire assignments
       // First, collect existing tire IDs to know which ones to keep/delete
@@ -96,7 +95,7 @@ export default function EditAmbassadorPage() {
       // Delete tires that are no longer in the list
       for (const tire of existingTires) {
         if (!newTireIds.has(tire.tire.id)) {
-          await api.delete(`/ambassadors/${ambassadorId}/tires/${tire.tire.id}`);
+          await backend.ambassadors.removeTire(ambassadorId, tire.tire.id);
         }
       }
 
@@ -105,7 +104,7 @@ export default function EditAmbassadorPage() {
         if (assignment.tireId && assignment.bikeType && assignment.testimonial) {
           if (!existingTireIds.has(assignment.tireId)) {
             // Add new tire
-            await api.post(`/ambassadors/${ambassadorId}/tires`, assignment);
+            await backend.ambassadors.addTire(ambassadorId, assignment);
           }
           // Note: For updates, we'd need a PUT endpoint, for now we delete and recreate
         }

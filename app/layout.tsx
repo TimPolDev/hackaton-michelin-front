@@ -3,6 +3,7 @@ import { Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -54,12 +55,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={notoSans.variable}>
-      <body className={notoSans.className} suppressHydrationWarning>
+      <body className={`${notoSans.className} bg-michelin-blue`} suppressHydrationWarning>
         <Providers>
           <header>
             <Header/>
           </header>
           {children}
+          <Footer/>
         </Providers>
       </body>
     </html>

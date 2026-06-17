@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,13 +36,16 @@ export default function CreateClubPage() {
     setError('');
 
     try {
-      const res = await api.post('/clubs', {
+      // Back attend isMultiBikeType + bikeTypeFilter (un seul type), pas un tableau.
+      const club = await backend.clubs.create({
         name,
         description,
-        bikeTypes: selectedBikeTypes.length > 0 ? selectedBikeTypes : null,
+        isMultiBikeType: selectedBikeTypes.length !== 1,
+        bikeTypeFilter:
+          selectedBikeTypes.length === 1 ? selectedBikeTypes[0] : undefined,
       });
 
-      router.push(`/clubs/${res.data.id}`);
+      router.push(`/clubs/${club.id}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors de la création du club');
       setLoading(false);

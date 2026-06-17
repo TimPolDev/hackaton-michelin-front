@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { api } from '@/lib/api/client';
+import { backend } from '@/lib/api';
 import { Select, SelectOption } from '../ui/select';
 
 interface Cyclist {
@@ -30,8 +30,8 @@ export function CyclistSelect({ value, onChange, className }: CyclistSelectProps
   const loadCyclists = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/cyclists');
-      setCyclists(response.data);
+      const data = await backend.cyclists.list();
+      setCyclists(data);
       setError(null);
     } catch (err) {
       console.error('Error loading cyclists:', err);
