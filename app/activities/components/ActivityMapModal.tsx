@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { downloadGPX } from '@/lib/gpx-export';
 import dynamic from 'next/dynamic';
 
 // Import Leaflet dynamically to avoid SSR issues
@@ -31,6 +32,7 @@ interface Activity {
 interface ActivityMapModalProps {
   activity: Activity;
   onClose: () => void;
+  ambassadorName?: string;
 }
 
 const BIKE_TYPE_LABELS: Record<string, string> = {
@@ -40,7 +42,10 @@ const BIKE_TYPE_LABELS: Record<string, string> = {
   E_BIKE: 'Vélo Électrique',
 };
 
-export default function ActivityMapModal({ activity, onClose }: ActivityMapModalProps) {
+export default function ActivityMapModal({ activity, onClose, ambassadorName }: ActivityMapModalProps) {
+  const handleDownloadGPX = () => {
+    downloadGPX(activity, ambassadorName);
+  };
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -133,7 +138,19 @@ export default function ActivityMapModal({ activity, onClose }: ActivityMapModal
           {/* Carte - Strava style full width */}
           {activity.polyline ? (
             <div className="space-y-3">
-              <h3 className="text-lg font-bold text-gray-900">Parcours</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900">Parcours</h3>
+                <Button
+                  onClick={handleDownloadGPX}
+                  variant="outline"
+                  className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Télécharger GPX
+                </Button>
+              </div>
               <div className="rounded-xl overflow-hidden shadow-lg border-2 border-gray-200">
                 <MapView
                   polyline={activity.polyline}

@@ -5,6 +5,18 @@ import { useRouter, useParams } from 'next/navigation';
 import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { downloadGPX } from '@/lib/gpx-export';
+import dynamic from 'next/dynamic';
+
+const ActivityMapModal = dynamic(() => import('../../activities/components/ActivityMapModal'), {
+  ssr: false,
+});
+
+const BIKE_TYPE_ICONS: Record<string, string> = {
+  ROAD: '🚴',
+  MTB: '🚵',
+  GRAVEL: '🚴‍♂️',
+};
 
 export default function AmbassadorDetailPage() {
   const router = useRouter();
@@ -13,6 +25,9 @@ export default function AmbassadorDetailPage() {
 
   const [ambassador, setAmbassador] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
   useEffect(() => {
     const loadAmbassador = async () => {
@@ -28,6 +43,35 @@ export default function AmbassadorDetailPage() {
 
     loadAmbassador();
   }, [ambassadorId]);
+
+  useEffect(() => {
+    const loadActivities = async () => {
+      setActivitiesLoading(true);
+      try {
+        const data = await backend.ambassadors.getActivities(ambassadorId, 6);
+        if (data.hasStrava) {
+          setActivities(data.activities || []);
+        }
+      } catch (error) {
+        console.error('Error loading activities:', error);
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+
+    if (ambassadorId) {
+      loadActivities();
+    }
+  }, [ambassadorId]);
+
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h${minutes.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}min`;
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
@@ -139,6 +183,97 @@ export default function AmbassadorDetailPage() {
           </Card>
         )}
 
+        {/* Itinéraires Strava */}
+        {activities.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader className="bg-gradient-to-r from-[#FC4C02]/10 to-transparent">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">🗺️</span>
+                    Itinéraires
+                  </CardTitle>
+                  <CardDescription>
+                    Les parcours Strava de {ambassador.cyclist.fullName}
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/itineraires')}
+                  className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white"
+                >
+                  Voir tous
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="border rounded-lg hover:shadow-md transition-all overflow-hidden relative group"
+                  >
+                    {/* Miniature carte avec gradient orange */}
+                    <div
+                      className="h-32 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-4xl cursor-pointer"
+                      onClick={() => setSelectedActivity(activity)}
+                    >
+                      🗺️
+                    </div>
+
+                    {/* Bouton GPX flottant */}
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        downloadGPX(activity, ambassador?.cyclist?.fullName);
+                      }}
+                      size="sm"
+                      className="absolute top-2 right-2 bg-white text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white border border-[#FC4C02] opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      GPX
+                    </Button>
+
+                    {/* Détails */}
+                    <div
+                      className="p-4 cursor-pointer"
+                      onClick={() => setSelectedActivity(activity)}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">
+                          {BIKE_TYPE_ICONS[activity.bikeType] || '🚴'}
+                        </span>
+                        <h4 className="font-bold text-sm">
+                          {activity.bikeType === 'ROAD' ? 'Sortie Route' :
+                           activity.bikeType === 'MTB' ? 'Sortie VTT' :
+                           activity.bikeType === 'GRAVEL' ? 'Sortie Gravel' :
+                           'Sortie Vélo'}
+                        </h4>
+                      </div>
+
+                      <div className="flex gap-4 text-sm">
+                        <div>
+                          <span className="font-bold text-gray-900">{activity.distance.toFixed(1)}</span>
+                          <span className="text-gray-500 text-xs ml-1">km</span>
+                        </div>
+                        <div>
+                          <span className="font-bold text-gray-900">{Math.round(activity.elevationGain)}</span>
+                          <span className="text-gray-500 text-xs ml-1">m</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-700">{formatDuration(activity.movingTime)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Pneus recommandés */}
         {ambassador.tires && ambassador.tires.length > 0 && (
           <Card>
@@ -179,6 +314,15 @@ export default function AmbassadorDetailPage() {
           </Button>
         </div>
       </div>
+
+      {/* Modal carte */}
+      {selectedActivity && (
+        <ActivityMapModal
+          activity={selectedActivity}
+          onClose={() => setSelectedActivity(null)}
+          ambassadorName={ambassador?.cyclist?.fullName}
+        />
+      )}
     </div>
   );
 }

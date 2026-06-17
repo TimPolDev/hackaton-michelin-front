@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { downloadGPX } from '@/lib/gpx-export';
 import ActivityMapModal from './components/ActivityMapModal';
 
 type Period = 'all' | 'season' | 'month' | 'week';
@@ -176,13 +177,15 @@ export default function ActivitiesPage() {
             filteredActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden border border-gray-200"
-                onClick={() => setSelectedActivity(activity)}
+                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden border border-gray-200"
               >
                 <div className="flex">
                   {/* Miniature carte à gauche - Strava style */}
                   {activity.polyline ? (
-                    <div className="w-24 sm:w-32 bg-gray-100 flex-shrink-0 relative">
+                    <div
+                      className="w-24 sm:w-32 bg-gray-100 flex-shrink-0 relative cursor-pointer"
+                      onClick={() => setSelectedActivity(activity)}
+                    >
                       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 text-white text-4xl">
                         🗺️
                       </div>
@@ -197,55 +200,80 @@ export default function ActivitiesPage() {
 
                   {/* Contenu principal */}
                   <div className="flex-1 p-4">
-                    {/* En-tête */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xl">
-                            {BIKE_TYPE_ICONS[activity.bikeType] || '🚴'}
-                          </span>
-                          <h3 className="font-bold text-base text-gray-900">
-                            {activity.bikeType === 'ROAD' ? 'Sortie Route' :
-                             activity.bikeType === 'MTB' ? 'Sortie VTT' :
-                             activity.bikeType === 'GRAVEL' ? 'Sortie Gravel' :
-                             'Sortie Vélo'}
-                          </h3>
+                    <div className="flex items-start justify-between gap-4">
+                      <div
+                        className="flex-1 cursor-pointer"
+                        onClick={() => setSelectedActivity(activity)}
+                      >
+                        {/* En-tête */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xl">
+                                {BIKE_TYPE_ICONS[activity.bikeType] || '🚴'}
+                              </span>
+                              <h3 className="font-bold text-base text-gray-900">
+                                {activity.bikeType === 'ROAD' ? 'Sortie Route' :
+                                 activity.bikeType === 'MTB' ? 'Sortie VTT' :
+                                 activity.bikeType === 'GRAVEL' ? 'Sortie Gravel' :
+                                 'Sortie Vélo'}
+                              </h3>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                              {formatDate(activity.activityDate)}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(activity.activityDate)}
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Stats - Strava style inline */}
-                    <div className="flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-gray-900">
-                          {activity.distance.toFixed(1)}
-                        </span>
-                        <span className="text-gray-500">km</span>
-                      </div>
+                        {/* Stats - Strava style inline */}
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-bold text-gray-900">
+                              {activity.distance.toFixed(1)}
+                            </span>
+                            <span className="text-gray-500">km</span>
+                          </div>
 
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-gray-900">
-                          {Math.round(activity.elevationGain)}
-                        </span>
-                        <span className="text-gray-500">m</span>
-                      </div>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-bold text-gray-900">
+                              {Math.round(activity.elevationGain)}
+                            </span>
+                            <span className="text-gray-500">m</span>
+                          </div>
 
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-gray-900">
-                          {formatDuration(activity.movingTime)}
-                        </span>
-                      </div>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-bold text-gray-900">
+                              {formatDuration(activity.movingTime)}
+                            </span>
+                          </div>
 
-                      {activity.averageSpeed && (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-semibold text-gray-700">
-                            {activity.averageSpeed.toFixed(1)}
-                          </span>
-                          <span className="text-gray-500">km/h</span>
+                          {activity.averageSpeed && (
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-lg font-semibold text-gray-700">
+                                {activity.averageSpeed.toFixed(1)}
+                              </span>
+                              <span className="text-gray-500">km/h</span>
+                            </div>
+                          )}
                         </div>
+                      </div>
+
+                      {/* GPX Button */}
+                      {activity.polyline && (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadGPX(activity);
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white shrink-0"
+                        >
+                          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          GPX
+                        </Button>
                       )}
                     </div>
                   </div>
