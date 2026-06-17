@@ -27,4 +27,8 @@ export const activitiesApi = {
 
   // POST /activities/sync-strava
   syncStrava: () => api.post('/activities/sync-strava').then((r) => r.data),
+
+  // DELETE /activities/reset-activities - Delete all and reimport
+  resetActivities: () =>
+    api.delete('/activities/reset-activities').then((r) => r.data),
 };
