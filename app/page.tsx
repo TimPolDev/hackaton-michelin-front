@@ -7,7 +7,7 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-            Michelin Bike
+            PaceLine
           </h1>
           <p className="text-2xl text-gray-600 mb-8">
             Trouvez le pneu parfait pour votre pratique cycliste

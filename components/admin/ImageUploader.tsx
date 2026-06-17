@@ -81,7 +81,7 @@ export function ImageUploader({
           <button
             type="button"
             onClick={addAdditionalPhoto}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="px-4 py-2 bg-michelin-blue-dark text-white rounded-md hover:bg-michelin-blue-dark/90"
           >
             Ajouter
           </button>
@@ -100,7 +100,7 @@ export function ImageUploader({
                   <button
                     type="button"
                     onClick={() => setAsMainPhoto(url)}
-                    className="opacity-0 group-hover:opacity-100 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                    className="opacity-0 group-hover:opacity-100 px-2 py-1 bg-michelin-blue-dark text-white text-xs rounded hover:bg-michelin-blue-dark/90"
                     title="Définir comme photo principale"
                   >
                     Principal

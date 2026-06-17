@@ -1,25 +1,74 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Michelin Design System
+   https://designsystem.michelin.com/
+   Brand colors:
+     - Michelin Blue       #27509B
+     - Michelin Yellow     #FCE500
+     - Michelin Dark Blue  #00205B
+     - Michelin Midnight   #000C34
+   Typography: Noto Sans
+   Values are stored as raw HSL channels so they can be
+   composed with hsl(var(--token) / <alpha>) where needed.
+   ============================================================ */
+
 :root {
+  /* --- Brand palette (raw) --- */
+  --michelin-blue: 219 60% 38%;          /* #27509B - Primary Blue */
+  --michelin-blue-dark: 219 100% 18%;    /* #00205B - Dark Blue (hover / pressed) */
+  --michelin-blue-light: 214 73% 90%;    /* #D4E7FA - tint */
+  --michelin-midnight: 226 100% 10%;     /* #000C34 - Midnight Blue */
+  --michelin-yellow: 54 100% 49%;        /* #FCE500 - Primary Yellow */
+  --michelin-yellow-dark: 48 100% 45%;   /* hover */
+  --michelin-navy: 219 100% 18%;         /* #00205B - deep text navy */
+
+  /* --- Semantic tokens --- */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --primary: 221 83% 53%; /* Michelin Blue */
-  --primary-foreground: 210 40% 98%;
-  --secondary: 48 96% 89%; /* Michelin Yellow */
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221 83% 53%;
+  --foreground: var(--michelin-navy);
+
+  --primary: var(--michelin-blue);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--michelin-yellow);
+  --secondary-foreground: var(--michelin-midnight);
+
+  --muted: 214 32% 95%;
+  --muted-foreground: 218 15% 45%;
+
+  --accent: 214 73% 90%;                 /* #D4E7FA - Blue Light 01 */
+  --accent-foreground: var(--michelin-blue);
+
+  --destructive: 0 73% 41%;              /* #B71C1C - Danger */
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 123 46% 34%;                /* #2E7D32 - Valid */
+  --success-foreground: 0 0% 100%;
+
+  --warning: 37 95% 56%;                 /* #F9A825 - Warning */
+  --warning-foreground: 226 100% 10%;
+
+  --border: 214 24% 89%;
+  --input: 214 24% 89%;
+  --ring: var(--michelin-blue);
+
+  --card: 0 0% 100%;
+  --card-foreground: var(--michelin-navy);
+
   --radius: 0.5rem;
 }
 
 @theme inline {
+  /* --- Brand colors (usable as bg-michelin-blue, text-michelin-yellow, ...) --- */
+  --color-michelin-blue: hsl(var(--michelin-blue));
+  --color-michelin-blue-dark: hsl(var(--michelin-blue-dark));
+  --color-michelin-blue-light: hsl(var(--michelin-blue-light));
+  --color-michelin-midnight: hsl(var(--michelin-midnight));
+  --color-michelin-yellow: hsl(var(--michelin-yellow));
+  --color-michelin-yellow-dark: hsl(var(--michelin-yellow-dark));
+  --color-michelin-navy: hsl(var(--michelin-navy));
+
+  /* --- Semantic colors --- */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-primary: hsl(var(--primary));
@@ -32,12 +81,24 @@
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* --- Typography (Michelin official font: Noto Sans) --- */
+  --font-sans: var(--font-noto-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* --- Radius scale --- */
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
@@ -47,5 +108,6 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-sans);
   }
 }
