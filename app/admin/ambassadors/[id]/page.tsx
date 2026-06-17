@@ -33,9 +33,12 @@ export default function EditAmbassadorPage() {
   });
   const [tireAssignments, setTireAssignments] = useState<TireAssignment[]>([]);
   const [existingTires, setExistingTires] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
 
   useEffect(() => {
     loadAmbassador();
+    loadAllActivities();
   }, [ambassadorId]);
 
   const loadAmbassador = async () => {
@@ -76,6 +79,53 @@ export default function EditAmbassadorPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadAllActivities = async () => {
+    try {
+      setLoadingActivities(true);
+      const data = await backend.ambassadors.getAllActivities(ambassadorId);
+      if (data.hasStrava) {
+        setActivities(data.activities || []);
+      }
+    } catch (error) {
+      console.error('Error loading activities:', error);
+    } finally {
+      setLoadingActivities(false);
+    }
+  };
+
+  const handleToggleFeatured = async (activityId: string, currentStatus: boolean) => {
+    try {
+      await backend.ambassadors.toggleActivityFeatured(
+        ambassadorId,
+        activityId,
+        !currentStatus
+      );
+
+      // Update local state
+      setActivities(activities.map(act =>
+        act.id === activityId ? { ...act, isFeatured: !currentStatus } : act
+      ));
+    } catch (error) {
+      console.error('Error toggling featured status:', error);
+      alert('Erreur lors de la mise à jour du statut');
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  };
+
+  const BIKE_TYPE_ICONS: Record<string, string> = {
+    ROAD: '🚴',
+    MTB: '🚵',
+    GRAVEL: '🚴‍♂️',
   };
 
   const handleUpdateAmbassador = async (e: React.FormEvent) => {
@@ -275,6 +325,75 @@ export default function EditAmbassadorPage() {
                 </Button>
               </div>
             </form>
+          </CardContent>
+        </Card>
+
+        {/* Section gestion des itinéraires mis en avant */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Gestion des itinéraires mis en avant</CardTitle>
+            <CardDescription>
+              Sélectionnez les activités à afficher sur la page de l'ambassadeur et dans les itinéraires
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingActivities ? (
+              <div className="text-center py-8">Chargement des activités...</div>
+            ) : activities.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Aucune activité avec trace GPS disponible
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground mb-4">
+                  {activities.filter(a => a.isFeatured).length} itinéraire{activities.filter(a => a.isFeatured).length > 1 ? 's' : ''} mis en avant
+                </div>
+                <div className="max-h-[600px] overflow-y-auto space-y-2">
+                  {activities.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className={`
+                        border rounded-lg p-4 flex items-center gap-4 transition-all
+                        ${activity.isFeatured ? 'bg-orange-50 border-orange-300' : 'bg-white border-gray-200'}
+                      `}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={activity.isFeatured}
+                        onChange={() => handleToggleFeatured(activity.id, activity.isFeatured)}
+                        className="w-5 h-5 rounded border-gray-300 text-[#FC4C02] focus:ring-[#FC4C02]"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xl">
+                            {BIKE_TYPE_ICONS[activity.bikeType] || '🚴'}
+                          </span>
+                          <span className="font-semibold">
+                            {activity.bikeType === 'ROAD' ? 'Route' :
+                             activity.bikeType === 'MTB' ? 'VTT' :
+                             activity.bikeType === 'GRAVEL' ? 'Gravel' :
+                             'Vélo'}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            • {formatDate(activity.activityDate)}
+                          </span>
+                        </div>
+                        <div className="flex gap-4 text-sm text-gray-600">
+                          <span>{activity.distance.toFixed(1)} km</span>
+                          <span>{Math.round(activity.elevationGain)} m</span>
+                          <span>{Math.floor(activity.movingTime / 60)} min</span>
+                        </div>
+                      </div>
+                      {activity.isFeatured && (
+                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">
+                          Mis en avant
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

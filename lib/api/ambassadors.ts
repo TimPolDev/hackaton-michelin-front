@@ -47,4 +47,12 @@ export const ambassadorsApi = {
     limit?: number;
   }) =>
     api.get('/ambassadors/routes/search', { params }).then((r) => r.data),
+
+  // GET /ambassadors/:id/activities/all   (admin)
+  getAllActivities: (id: string) =>
+    api.get(`/ambassadors/${id}/activities/all`).then((r) => r.data),
+
+  // PUT /ambassadors/:id/activities/:activityId/featured   (admin)
+  toggleActivityFeatured: (id: string, activityId: string, isFeatured: boolean) =>
+    api.put(`/ambassadors/${id}/activities/${activityId}/featured`, { isFeatured }).then((r) => r.data),
 };
