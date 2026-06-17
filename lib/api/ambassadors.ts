@@ -33,4 +33,18 @@ export const ambassadorsApi = {
   // DELETE /ambassadors/:id/tires/:tireId   (admin)
   removeTire: (id: string, tireId: string) =>
     api.delete(`/ambassadors/${id}/tires/${tireId}`).then((r) => r.data),
+
+  // GET /ambassadors/:id/activities   (public)
+  getActivities: (id: string, limit?: number) =>
+    api.get(`/ambassadors/${id}/activities`, { params: { limit } }).then((r) => r.data),
+
+  // GET /ambassadors/routes/search   (public)
+  searchRoutes: (params?: {
+    bikeType?: string;
+    minDistance?: number;
+    maxDistance?: number;
+    minElevation?: number;
+    limit?: number;
+  }) =>
+    api.get('/ambassadors/routes/search', { params }).then((r) => r.data),
 };
