@@ -8,7 +8,7 @@ import { Select, SelectOption } from '../ui/select';
 interface Tire {
   id: string;
   rangeName: string;
-  webProductName: string;
+  segment: string;
   compatibleBikeTypes: string;
 }
 
@@ -74,7 +74,7 @@ export function TireSelector({ assignments, onChange }: TireSelectorProps) {
 
   const tireOptions: SelectOption[] = tires.map((tire) => ({
     value: tire.id,
-    label: `${tire.rangeName} - ${tire.webProductName}`,
+    label: tire.segment ? `${tire.rangeName} — ${tire.segment}` : tire.rangeName,
   }));
 
   return (

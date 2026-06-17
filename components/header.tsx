@@ -11,6 +11,7 @@ const NAV_LINKS = [
     { label: 'Accueil', href: '/dashboard' },
     { label: 'Mes Clubs', href: '/clubs' },
     { label: 'Ambassadeurs', href: '/ambassadors' },
+    { label: 'Pneus', href: '/tires' },
     { label: 'Itinéraires', href: '/itineraires' },
     { label: 'Classement', href: '/classement' },
     { label: 'Calendrier', href: '/calendrier' },
@@ -18,6 +19,7 @@ const NAV_LINKS = [
 
 const PUBLIC_NAV_LINKS = [
     { label: 'Ambassadeurs', href: '/ambassadors' },
+    { label: 'Pneus', href: '/tires' },
 ];
 
 function getInitials(name?: string | null): string {

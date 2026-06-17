@@ -294,7 +294,7 @@ export default function AmbassadorDetailPage() {
                       <div className="flex-1">
                         <h4 className="font-bold text-lg">{tireInfo.tire.rangeName}</h4>
                         <p className="text-sm text-muted-foreground mb-2">
-                          {tireInfo.tire.webProductName}
+                          {tireInfo.tire.segment}
                         </p>
                         <blockquote className="border-l-4 border-blue-500 pl-4 italic text-sm">
                           "{tireInfo.testimonial}"
