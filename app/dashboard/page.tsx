@@ -25,6 +25,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<any>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('all');
+  const [syncing, setSyncing] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,15 +39,42 @@ export default function DashboardPage() {
           return;
         }
 
-        const [cyclistData, statsData, recsData] = await Promise.all([
+        // Load cyclist and stats first (critical)
+        const [cyclistData, statsData] = await Promise.all([
           backend.cyclists.me(),
           backend.cyclists.stats({ period: 'all' }), // Par défaut: toutes les données
-          backend.recommendations.list(),
         ]);
 
+        console.log('Cyclist data:', cyclistData);
+        console.log('Stats data:', statsData);
+
         setCyclist(cyclistData);
-        setStats(statsData);
-        setRecommendations(recsData);
+
+        // Always set stats, even if it's an empty object
+        if (statsData) {
+          setStats(statsData);
+        } else {
+          // Set default empty stats if API returns null/undefined
+          setStats({
+            totalDistance: 0,
+            totalElevation: 0,
+            activityCount: 0,
+            averageSpeed: 0,
+            terrainDistribution: { asphalt: 0, offroad: 0, mixed: 0 }
+          });
+        }
+
+        setInitialLoadComplete(true);
+
+        // Load recommendations separately (non-blocking)
+        try {
+          const recsData = await backend.recommendations.list();
+          console.log('Recommendations:', recsData);
+          setRecommendations(recsData);
+        } catch (error) {
+          console.error('Failed to load recommendations (non-critical):', error);
+          // Don't fail the whole page if recommendations fail
+        }
       } catch (error) {
         console.error('Error loading dashboard:', error);
       } finally {
@@ -74,6 +103,23 @@ export default function DashboardPage() {
     return PERIODS.find(p => p.value === selectedPeriod)?.description || 'Total';
   };
 
+  const handleSyncStrava = async () => {
+    setSyncing(true);
+    try {
+      const result = await backend.activities.syncStrava();
+      alert(`Synchronisation réussie ! ${result.newActivitiesImported} nouvelles activités importées.`);
+
+      // Reload stats after sync
+      const statsData = await backend.cyclists.stats({ period: selectedPeriod });
+      setStats(statsData);
+    } catch (error: any) {
+      console.error('Sync error:', error);
+      alert(error.response?.data?.message || 'Erreur lors de la synchronisation');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
   }
@@ -82,21 +128,34 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <Hero/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {!cyclist?.stravaId && (
-          <Card className="mb-8 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+        {/* Show sync button ONLY if period is "all" and we have 0 activities */}
+        {stats && stats.activityCount === 0 && selectedPeriod === 'all' && (
+          <Card className="mb-8 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex-1">
-                <h3 className="text-lg font-bold mb-1">Connectez votre compte Strava</h3>
+                <h3 className="text-lg font-bold mb-1">Aucune activité trouvée</h3>
                 <p className="text-sm text-muted-foreground">
-                  Importez vos activités pour obtenir des recommandations personnalisées
+                  Synchronisez vos activités Strava pour voir vos statistiques
                 </p>
               </div>
               <Button
-                onClick={() => router.push('/strava/connect')}
+                onClick={handleSyncStrava}
+                disabled={syncing}
                 className="bg-[#FC4C02] hover:bg-[#E34402] text-white"
               >
-                Connecter Strava
+                {syncing ? 'Synchronisation...' : 'Synchroniser Strava'}
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Show info message if current period has no activities but we have activities overall */}
+        {stats && stats.activityCount === 0 && selectedPeriod !== 'all' && (
+          <Card className="mb-8 bg-gray-50 border-gray-200">
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-600">
+                Aucune activité pour cette période. Essayez une autre période ou ajoutez de nouvelles activités.
+              </p>
             </CardContent>
           </Card>
         )}
@@ -126,21 +185,35 @@ export default function DashboardPage() {
         </div>
 
         {/* Statistiques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className={statsLoading ? 'opacity-50' : ''}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span>🚴</span>
-                Distance totale
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-[#27509B]">
-                {stats?.totalDistance?.toFixed(1) || 0} km
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">{getPeriodLabel()}</p>
-            </CardContent>
-          </Card>
+        {!stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <CardTitle className="text-lg">Chargement...</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className={statsLoading ? 'opacity-50' : ''}>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span>🚴</span>
+                  Distance totale
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-[#27509B]">
+                  {stats?.totalDistance?.toFixed(1) || 0} km
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">{getPeriodLabel()}</p>
+              </CardContent>
+            </Card>
 
           <Card className={statsLoading ? 'opacity-50' : ''}>
             <CardHeader>
@@ -172,6 +245,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+        )}
 
         {/* Statistiques détaillées */}
         {stats && (
@@ -246,8 +320,8 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Lien vers les activités */}
-        {cyclist?.stravaId && (
+        {/* Lien vers les activités - show if we have stats with activities */}
+        {stats && stats.activityCount > 0 && (
           <div className="mb-8">
             <Button
               onClick={() => router.push('/activities')}
