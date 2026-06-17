@@ -63,18 +63,20 @@ function StravaConnectContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-yellow-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <span className="text-2xl">🚴</span>
-            Connecter Strava
-          </CardTitle>
-          <CardDescription>
-            Importez vos activités Strava pour obtenir des recommandations personnalisées
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-orange-100 overflow-hidden">
+        {/* Header Strava style */}
+        <div className="bg-gradient-to-r from-[#FC4C02] to-[#E34402] text-white p-8 text-center">
+          <svg className="w-16 h-16 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+          </svg>
+          <h1 className="text-3xl font-bold mb-2">Connecter Strava</h1>
+          <p className="text-white/90 text-sm">
+            Synchronisez vos activités pour des recommandations personnalisées
+          </p>
+        </div>
+
+        <div className="p-6 space-y-4">
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
               {error}
@@ -95,26 +97,39 @@ function StravaConnectContent() {
 
           {!loading && !success && (
             <>
-              <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-                <p className="text-sm text-orange-800 mb-2">
-                  <strong>Pourquoi connecter Strava ?</strong>
+              <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 p-5 rounded-xl">
+                <p className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">✨</span>
+                  Pourquoi connecter Strava ?
                 </p>
-                <ul className="text-xs text-orange-700 space-y-1">
-                  <li>• Analyse automatique de votre profil de roulage</li>
-                  <li>• Recommandations de pneus personnalisées</li>
-                  <li>• Statistiques détaillées par type de vélo</li>
-                  <li>• Participation aux classements de clubs</li>
+                <ul className="text-sm text-gray-700 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span>Analyse automatique de votre profil de roulage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span>Recommandations de pneus Michelin personnalisées</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span>Traces GPS et statistiques détaillées</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span>Participation aux classements de clubs</span>
+                  </li>
                 </ul>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Button
                   onClick={initiateStravaConnection}
                   disabled={loading}
-                  className="w-full bg-[#FC4C02] hover:bg-[#E34402] text-white"
+                  className="w-full bg-gradient-to-r from-[#FC4C02] to-[#E34402] hover:from-[#E34402] hover:to-[#D03802] text-white font-bold py-6 text-lg shadow-lg hover:shadow-xl transition-all"
                 >
-                  <span className="flex items-center gap-2">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <span className="flex items-center gap-3">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
                     </svg>
                     Se connecter avec Strava
@@ -124,19 +139,19 @@ function StravaConnectContent() {
                 <Button
                   variant="outline"
                   onClick={() => router.push('/dashboard')}
-                  className="w-full"
+                  className="w-full border-2 border-gray-300 hover:border-gray-400 text-gray-700"
                 >
                   Plus tard
                 </Button>
               </div>
 
-              <p className="text-xs text-muted-foreground text-center">
-                Vos données Strava sont synchronisées de manière sécurisée et ne sont jamais partagées sans votre consentement.
+              <p className="text-xs text-gray-500 text-center leading-relaxed">
+                🔒 Vos données Strava sont synchronisées de manière sécurisée et ne sont jamais partagées sans votre consentement.
               </p>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

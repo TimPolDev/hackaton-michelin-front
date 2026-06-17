@@ -1,4 +1,78 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { backend } from '@/lib/api';
+
 export default function Hero() {
+  const [cyclist, setCyclist] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [cyclistData, statsData] = await Promise.all([
+          backend.cyclists.me(),
+          backend.cyclists.stats(),
+        ]);
+        setCyclist(cyclistData);
+        setStats(statsData);
+      } catch (error) {
+        console.error('Error loading hero data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Calculer le prénom ou initiales
+  const getDisplayName = () => {
+    if (!cyclist?.fullName) return 'Cycliste';
+    const parts = cyclist.fullName.split(' ');
+    if (parts.length > 1) {
+      return `${parts[0]} ${parts[parts.length - 1][0]}.`;
+    }
+    return parts[0];
+  };
+
+  // Formater la dernière sortie
+  const getLastActivity = () => {
+    if (!stats?.lastActivity) return null;
+    const date = new Date(stats.lastActivity.activityDate);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    const distance = Math.round(stats.lastActivity.distance);
+
+    if (diffDays === 0) return `Aujourd'hui · ${distance} km`;
+    if (diffDays === 1) return `Hier · ${distance} km`;
+    if (diffDays < 7) return `Il y a ${diffDays} jours · ${distance} km`;
+    if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return `Il y a ${weeks} semaine${weeks > 1 ? 's' : ''} · ${distance} km`;
+    }
+    return `Il y a ${Math.floor(diffDays / 30)} mois · ${distance} km`;
+  };
+
+  // Calculer le nombre de clubs
+  const clubsCount = cyclist?.clubMemberships?.length || 0;
+
+  if (loading) {
+    return (
+      <section className="relative overflow-hidden bg-[#27509B] px-5 pt-5 pb-10">
+        <div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-yellow-300/5" />
+        <div className="relative z-10">
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FCE500]">
+            Chargement...
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative overflow-hidden bg-[#27509B] px-5 pt-5 pb-10">
       {/* Cercle décoratif */}
@@ -10,31 +84,33 @@ export default function Hero() {
         </p>
 
         <h1 className="mb-1 text-3xl font-extrabold italic text-white">
-          Thomas M.
+          {getDisplayName()}
         </h1>
 
-        <p className="text-sm text-white/55">
-          Dernière sortie il y a 2 jours · 47 km
-        </p>
+        {getLastActivity() && (
+          <p className="text-sm text-white/55">
+            Dernière sortie {getLastActivity()}
+          </p>
+        )}
 
         <div className="mt-5 grid grid-cols-3 gap-2.5">
           <StatCard
-            value="847"
+            value={Math.round(stats?.totalDistance || 0).toString()}
             unit="km"
             label="Ce mois"
-            delta="▲ +18%"
+            delta={stats?.distanceChange ? `${stats.distanceChange > 0 ? '▲' : '▼'} ${stats.distanceChange > 0 ? '+' : ''}${Math.round(stats.distanceChange)}%` : '—'}
           />
 
           <StatCard
-            value="12"
+            value={(stats?.activityCount || 0).toString()}
             label="Sorties"
-            delta="▲ +2"
+            delta={stats?.activityChange ? `${stats.activityChange > 0 ? '▲' : '▼'} ${stats.activityChange > 0 ? '+' : ''}${stats.activityChange}` : '—'}
           />
 
           <StatCard
-            value="3"
+            value={clubsCount.toString()}
             label="Clubs"
-            delta="↗ actifs"
+            delta={clubsCount > 0 ? '↗ actifs' : '—'}
           />
         </div>
       </div>
