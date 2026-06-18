@@ -24,13 +24,9 @@ export default function DashboardPage() {
   const [cyclist, setCyclist] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<any>(null);
-<<<<<<< Updated upstream
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('all');
   const [syncing, setSyncing] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-=======
-  const [isAdmin, setIsAdmin] = useState(false);
->>>>>>> Stashed changes
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,7 +39,6 @@ export default function DashboardPage() {
           return;
         }
 
-<<<<<<< Updated upstream
         // Load cyclist and stats first (critical)
         const [cyclistData, statsData] = await Promise.all([
           backend.cyclists.me(),
@@ -80,19 +75,6 @@ export default function DashboardPage() {
           console.error('Failed to load recommendations (non-critical):', error);
           // Don't fail the whole page if recommendations fail
         }
-=======
-        const [cyclistRes, statsRes, recsRes, authRes] = await Promise.all([
-          api.get('/cyclists/me'),
-          api.get('/cyclists/me/stats'),
-          api.get('/recommendations'),
-          api.get('/auth/me'),
-        ]);
-
-        setCyclist(cyclistRes.data);
-        setStats(statsRes.data);
-        setRecommendations(recsRes.data);
-        setIsAdmin(authRes.data.isAdmin || false);
->>>>>>> Stashed changes
       } catch (error) {
         console.error('Error loading dashboard:', error);
       } finally {
@@ -144,34 +126,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-<<<<<<< Updated upstream
       <Hero/>
-=======
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <h1 className="text-2xl font-bold text-primary">Michelin Bike</h1>
-            <div className="flex gap-4">
-              <Button variant="ghost" onClick={() => router.push('/clubs')}>
-                Clubs
-              </Button>
-              <Button variant="ghost" onClick={() => router.push('/ambassadors')}>
-                Ambassadeurs
-              </Button>
-              {isAdmin && (
-                <Button variant="ghost" onClick={() => router.push('/admin')}>
-                  Admin
-                </Button>
-              )}
-              <Button variant="outline" onClick={handleLogout}>
-                Déconnexion
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
->>>>>>> Stashed changes
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Show sync button ONLY if period is "all" and we have 0 activities */}
         {stats && stats.activityCount === 0 && selectedPeriod === 'all' && (
