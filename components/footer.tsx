@@ -20,7 +20,7 @@ export const Footer = () => {
               href="/gamme-michelin"
               className="transition-colors hover:text-white"
             >
-              Gamme Michelin
+              Gomme Michelin
             </a>
           </li>
 
