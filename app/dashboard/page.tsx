@@ -351,14 +351,6 @@ export default function DashboardPage() {
                   <p className="text-muted-foreground mb-4">
                     {recommendations.recommendations[0].explanation}
                   </p>
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <div className="text-3xl font-bold text-[#FCE500]">
-                        {recommendations.recommendations[0].score}%
-                      </div>
-                      <div className="text-sm text-muted-foreground">Compatibilité</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
