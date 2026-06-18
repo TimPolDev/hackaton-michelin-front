@@ -361,7 +361,7 @@ export default function EditAmbassadorPage() {
                         type="checkbox"
                         checked={activity.isFeatured}
                         onChange={() => handleToggleFeatured(activity.id, activity.isFeatured)}
-                        className="w-5 h-5 rounded border-gray-300 text-[#FC4C02] focus:ring-[#FC4C02]"
+                        className="w-5 h-5 rounded border-gray-300 text-[#27509B] focus:ring-[#27509B]"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

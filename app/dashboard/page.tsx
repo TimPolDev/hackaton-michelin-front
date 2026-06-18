@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 import Hero from './components/hero';
 
 type Period = 'all' | 'season' | 'month' | 'week';
@@ -121,7 +122,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement du tableau de bord..." />;
   }
 
   return (
@@ -141,7 +142,7 @@ export default function DashboardPage() {
               <Button
                 onClick={handleSyncStrava}
                 disabled={syncing}
-                className="bg-[#FC4C02] hover:bg-[#E34402] text-white"
+                className="bg-[#27509B] hover:bg-[#1e3f7a] text-white"
               >
                 {syncing ? 'Synchronisation...' : 'Synchroniser Strava'}
               </Button>

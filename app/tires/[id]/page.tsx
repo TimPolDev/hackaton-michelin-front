@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import type { Tire } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 
 function splitTags(value?: string): string[] {
   if (!value) return [];
@@ -59,7 +60,7 @@ export default function TireDetailPage() {
   }, [tireId]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement du pneu..." />;
   }
 
   if (!tire) {

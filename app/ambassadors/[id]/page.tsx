@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 import { downloadGPX } from '@/lib/gpx-export';
 import dynamic from 'next/dynamic';
 
@@ -74,7 +75,7 @@ export default function AmbassadorDetailPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement du profil..." />;
   }
 
   if (!ambassador) {
@@ -186,7 +187,7 @@ export default function AmbassadorDetailPage() {
         {/* Itinéraires Strava */}
         {activities.length > 0 && (
           <Card className="mb-6">
-            <CardHeader className="bg-gradient-to-r from-[#FC4C02]/10 to-transparent">
+            <CardHeader className="bg-gradient-to-r from-[#27509B]/10 to-transparent">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
@@ -200,7 +201,7 @@ export default function AmbassadorDetailPage() {
                 <Button
                   variant="outline"
                   onClick={() => router.push('/itineraires')}
-                  className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white"
+                  className="border-[#27509B] text-[#27509B] hover:bg-[#27509B] hover:text-white"
                 >
                   Voir tous
                 </Button>
@@ -215,7 +216,7 @@ export default function AmbassadorDetailPage() {
                   >
                     {/* Miniature carte avec gradient orange */}
                     <div
-                      className="h-32 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-4xl cursor-pointer"
+                      className="h-32 bg-gradient-to-br from-[#27509B] to-[#1e3f7a] flex items-center justify-center text-white text-4xl cursor-pointer"
                       onClick={() => setSelectedActivity(activity)}
                     >
                       🗺️
@@ -228,7 +229,7 @@ export default function AmbassadorDetailPage() {
                         downloadGPX(activity, ambassador?.cyclist?.fullName);
                       }}
                       size="sm"
-                      className="absolute top-2 right-2 bg-white text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white border border-[#FC4C02] opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 bg-white text-[#27509B] hover:bg-[#27509B] hover:text-white border border-[#27509B] opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

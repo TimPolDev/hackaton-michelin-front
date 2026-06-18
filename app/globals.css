@@ -105,6 +105,13 @@
   * {
     border-color: hsl(var(--border));
   }
+  html,
+  body {
+    /* Évite que tout débordement horizontal n'élargisse le layout viewport
+       (ce qui décalait/coupait les éléments en position fixed sur mobile). */
+    overflow-x: hidden;
+    max-width: 100%;
+  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));

@@ -49,7 +49,7 @@ export default function MapView({ polyline: encodedPolyline, startLatitude, star
 
       // Dessiner la trace
       const routeLine = L.polyline(coordinates, {
-        color: '#FC4C02', // Orange Strava
+        color: '#27509B', // Bleu Michelin
         weight: 4,
         opacity: 0.8,
       }).addTo(map);
@@ -104,7 +104,7 @@ export default function MapView({ polyline: encodedPolyline, startLatitude, star
   return (
     <div
       ref={mapContainer}
-      className="w-full h-[400px] rounded-lg"
+      className="w-full h-full min-h-[200px] sm:min-h-[320px] md:min-h-[400px]"
       style={{ zIndex: 0 }}
     />
   );

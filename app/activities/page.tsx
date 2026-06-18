@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 import { downloadGPX } from '@/lib/gpx-export';
 import ActivityMapModal from './components/ActivityMapModal';
 
@@ -107,7 +108,7 @@ export default function ActivitiesPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement des activités..." />;
   }
 
   if (!cyclist?.stravaId) {
@@ -123,7 +124,7 @@ export default function ActivitiesPage() {
             </p>
             <Button
               onClick={() => router.push('/strava/connect')}
-              className="w-full bg-[#FC4C02] hover:bg-[#E34402] text-white"
+              className="w-full bg-[#27509B] hover:bg-[#1e3f7a] text-white"
             >
               Connecter Strava
             </Button>
@@ -135,11 +136,11 @@ export default function ActivitiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header Strava style */}
-      <div className="bg-[#FC4C02] text-white px-5 py-6 shadow-md">
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Mes Activités</h1>
-          <p className="text-white/90 text-sm">
+          <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Mes Activités</h1>
+          <p className="text-sm md:text-base text-white/70">
             {filteredActivities.length} sortie{filteredActivities.length > 1 ? 's' : ''}
           </p>
         </div>
@@ -156,7 +157,7 @@ export default function ActivitiesPage() {
                 className={`
                   px-4 py-2 rounded-md font-semibold text-sm transition-all
                   ${selectedPeriod === period.value
-                    ? 'bg-[#FC4C02] text-white shadow-sm'
+                    ? 'bg-[#27509B] text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }
                 `}
@@ -267,7 +268,7 @@ export default function ActivitiesPage() {
                           }}
                           variant="outline"
                           size="sm"
-                          className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white shrink-0"
+                          className="border-[#27509B] text-[#27509B] hover:bg-[#27509B] hover:text-white shrink-0"
                         >
                           <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

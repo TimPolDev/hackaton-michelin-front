@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { backend } from '@/lib/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 import { downloadGPX } from '@/lib/gpx-export';
 import dynamic from 'next/dynamic';
 
@@ -99,18 +100,16 @@ export default function ItinerairesPage() {
   };
 
   if (initialLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement des itinéraires..." />;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header Strava style */}
-      <div className="bg-[#FC4C02] text-white px-5 py-6 shadow-md">
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Itinéraires des Ambassadeurs</h1>
-          <p className="text-white/90 text-sm">
-            Découvrez les parcours des ambassadeurs Michelin
-          </p>
+          <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Itinéraires des Ambassadeurs</h1>
+          <p className="text-sm md:text-base text-white/70">Découvrez les parcours des ambassadeurs Michelin</p>
         </div>
       </div>
 
@@ -124,7 +123,7 @@ export default function ItinerairesPage() {
               <select
                 value={filters.bikeType}
                 onChange={(e) => handleFilterChange('bikeType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FC4C02] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#27509B] focus:border-transparent"
               >
                 {BIKE_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -142,7 +141,7 @@ export default function ItinerairesPage() {
                 value={filters.minDistance}
                 onChange={(e) => handleFilterChange('minDistance', e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FC4C02] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#27509B] focus:border-transparent"
               />
             </div>
 
@@ -154,7 +153,7 @@ export default function ItinerairesPage() {
                 value={filters.maxDistance}
                 onChange={(e) => handleFilterChange('maxDistance', e.target.value)}
                 placeholder="200"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FC4C02] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#27509B] focus:border-transparent"
               />
             </div>
 
@@ -166,7 +165,7 @@ export default function ItinerairesPage() {
                 value={filters.minElevation}
                 onChange={(e) => handleFilterChange('minElevation', e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#FC4C02] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#27509B] focus:border-transparent"
               />
             </div>
           </div>
@@ -184,7 +183,7 @@ export default function ItinerairesPage() {
           {loading && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
               <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FC4C02] mb-2"></div>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#27509B] mb-2"></div>
                 <p className="text-sm font-medium text-gray-700">Mise à jour...</p>
               </div>
             </div>
@@ -200,106 +199,112 @@ export default function ItinerairesPage() {
                 key={route.id}
                 className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden border border-gray-200"
               >
-                <div className="flex">
-                  {/* Miniature carte */}
+                <div className="flex flex-col md:flex-row">
+                  {/* Miniature carte — bandeau sur mobile, colonne sur desktop */}
                   <div
-                    className="w-32 bg-gradient-to-br from-orange-400 to-red-500 flex-shrink-0 relative cursor-pointer"
+                    className="h-24 w-full md:h-auto md:w-32 md:min-h-[140px] bg-gradient-to-br from-[#27509B] to-[#1e3f7a] shrink-0 relative cursor-pointer"
                     onClick={() => setSelectedRoute(route)}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-4xl">
+                    <div className="absolute inset-0 flex items-center justify-center text-white text-3xl md:text-4xl">
                       🗺️
                     </div>
                   </div>
 
                   {/* Contenu */}
-                  <div className="flex-1 p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div
-                        className="flex-1 cursor-pointer"
-                        onClick={() => setSelectedRoute(route)}
-                      >
-                        {/* Ambassadeur */}
-                        <div className="flex items-center gap-3 mb-3">
-                          {route.ambassador.photoUrl ? (
-                            <img
-                              src={route.ambassador.photoUrl}
-                              alt={route.ambassador.name}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-[#FC4C02] flex items-center justify-center text-white font-bold">
-                              {route.ambassador.name?.[0] || 'A'}
-                            </div>
-                          )}
-                          <div>
-                            <p className="font-bold text-gray-900">{route.ambassador.name}</p>
-                            <p className="text-xs text-gray-500">{route.ambassador.discipline}</p>
+                  <div className="flex-1 min-w-0 p-3 md:p-4 flex flex-col gap-3">
+                    <div
+                      className="cursor-pointer space-y-3"
+                      onClick={() => setSelectedRoute(route)}
+                    >
+                      {/* Ambassadeur */}
+                      <div className="flex items-center gap-2.5">
+                        {route.ambassador.photoUrl ? (
+                          <img
+                            src={route.ambassador.photoUrl}
+                            alt={route.ambassador.name}
+                            className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#27509B] flex items-center justify-center text-white text-sm font-bold shrink-0">
+                            {route.ambassador.name?.[0] || 'A'}
                           </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-bold text-gray-900 text-sm md:text-base truncate">
+                            {route.ambassador.name}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {route.ambassador.discipline}
+                          </p>
                         </div>
+                      </div>
 
-                        {/* Type et date */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xl">
+                      {/* Type et date */}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg md:text-xl shrink-0">
                             {BIKE_TYPE_ICONS[route.bikeType] || '🚴'}
                           </span>
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-gray-900 text-sm md:text-base">
                             {route.bikeType === 'ROAD' ? 'Sortie Route' :
                              route.bikeType === 'MTB' ? 'Sortie VTT' :
                              route.bikeType === 'GRAVEL' ? 'Sortie Gravel' :
                              'Sortie Vélo'}
                           </h3>
-                          <span className="text-sm text-gray-500">• {formatDate(route.activityDate)}</span>
                         </div>
-
-                        {/* Stats */}
-                        <div className="flex flex-wrap gap-4">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-gray-900">
-                              {route.distance.toFixed(1)}
-                            </span>
-                            <span className="text-gray-500 text-sm">km</span>
-                          </div>
-
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-gray-900">
-                              {Math.round(route.elevationGain)}
-                            </span>
-                            <span className="text-gray-500 text-sm">m</span>
-                          </div>
-
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-gray-900">
-                              {formatDuration(route.movingTime)}
-                            </span>
-                          </div>
-
-                          {route.averageSpeed && (
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-semibold text-gray-700">
-                                {route.averageSpeed.toFixed(1)}
-                              </span>
-                              <span className="text-gray-500 text-sm">km/h</span>
-                            </div>
-                          )}
-                        </div>
+                        <p className="text-xs md:text-sm text-gray-500 mt-0.5 ml-7 md:ml-8">
+                          {formatDate(route.activityDate)}
+                        </p>
                       </div>
 
-                      {/* Bouton GPX */}
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          downloadGPX(route, route.ambassador?.name);
-                        }}
-                        variant="outline"
-                        size="sm"
-                        className="border-[#FC4C02] text-[#FC4C02] hover:bg-[#FC4C02] hover:text-white shrink-0"
-                      >
-                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        GPX
-                      </Button>
+                      {/* Stats — grille 2 colonnes sur mobile */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap sm:gap-4">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl md:text-2xl font-bold text-gray-900">
+                            {route.distance.toFixed(1)}
+                          </span>
+                          <span className="text-gray-500 text-xs md:text-sm">km</span>
+                        </div>
+
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl md:text-2xl font-bold text-gray-900">
+                            {Math.round(route.elevationGain)}
+                          </span>
+                          <span className="text-gray-500 text-xs md:text-sm">m</span>
+                        </div>
+
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl md:text-2xl font-bold text-gray-900">
+                            {formatDuration(route.movingTime)}
+                          </span>
+                        </div>
+
+                        {route.averageSpeed && (
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-base md:text-lg font-semibold text-gray-700">
+                              {route.averageSpeed.toFixed(1)}
+                            </span>
+                            <span className="text-gray-500 text-xs md:text-sm">km/h</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Bouton GPX — pleine largeur sur mobile */}
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        downloadGPX(route, route.ambassador?.name);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto sm:self-end border-[#27509B] text-[#27509B] hover:bg-[#27509B] hover:text-white"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Télécharger GPX
+                    </Button>
                   </div>
                 </div>
               </div>
