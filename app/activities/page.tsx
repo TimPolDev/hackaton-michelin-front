@@ -19,11 +19,35 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: 'week', label: 'Semaine' },
 ];
 
-const BIKE_TYPE_ICONS: Record<string, string> = {
-  ROAD: '🚴',
-  MTB: '🚵',
-  GRAVEL: '🚴‍♂️',
-  E_BIKE: '⚡',
+const BikeIcon = ({ type }: { type: string }) => {
+  const icons: Record<string, { paths: string[]; label: string }> = {
+    ROAD: {
+      paths: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M15 5a1 1 0 100 2 1 1 0 000-2z', 'M12 17.5V14l-3-3 4-3 2 3h2'],
+      label: 'Route'
+    },
+    MTB: {
+      paths: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M12 17.5V14l-3-3 4-3 2 3h2', 'M8 8l2-2 2 2'],
+      label: 'VTT'
+    },
+    GRAVEL: {
+      paths: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M12 17.5V14l-3-3 4-3 2 3h2'],
+      label: 'Gravel'
+    },
+    E_BIKE: {
+      paths: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M13 7l-10 7h9l-1 4 10-7h-9l1-4'],
+      label: 'E-Bike'
+    },
+  };
+
+  const icon = icons[type] || icons.ROAD;
+
+  return (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      {icon.paths.map((path, i) => (
+        <path key={i} d={path} />
+      ))}
+    </svg>
+  );
 };
 
 export default function ActivitiesPage() {
@@ -184,11 +208,25 @@ export default function ActivitiesPage() {
                   {/* Miniature carte à gauche - Strava style */}
                   {activity.polyline ? (
                     <div
-                      className="w-24 sm:w-32 bg-gray-100 flex-shrink-0 relative cursor-pointer"
+                      className="w-24 sm:w-32 bg-gray-100 flex-shrink-0 relative cursor-pointer overflow-hidden"
                       onClick={() => setSelectedActivity(activity)}
                     >
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-400 to-red-500 text-white text-4xl">
-                        🗺️
+                      {/* Topography pattern for GPX */}
+                      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                          <pattern id="topo" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M0 5 Q5 3, 10 5 T20 5" stroke="#FC4C02" fill="none" strokeWidth="0.5" opacity="0.3"/>
+                            <path d="M0 10 Q5 8, 10 10 T20 10" stroke="#FC4C02" fill="none" strokeWidth="0.5" opacity="0.4"/>
+                            <path d="M0 15 Q5 13, 10 15 T20 15" stroke="#FC4C02" fill="none" strokeWidth="0.5" opacity="0.5"/>
+                          </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#topo)"/>
+                      </svg>
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/80 to-red-600/80 flex items-center justify-center">
+                        <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
                       </div>
                     </div>
                   ) : (
@@ -210,9 +248,9 @@ export default function ActivitiesPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xl">
-                                {BIKE_TYPE_ICONS[activity.bikeType] || '🚴'}
-                              </span>
+                              <div className="w-6 h-6 rounded-full bg-[#FC4C02]/10 flex items-center justify-center text-[#FC4C02]">
+                                <BikeIcon type={activity.bikeType} />
+                              </div>
                               <h3 className="font-bold text-base text-gray-900">
                                 {activity.bikeType === 'ROAD' ? 'Sortie Route' :
                                  activity.bikeType === 'MTB' ? 'Sortie VTT' :

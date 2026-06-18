@@ -80,7 +80,7 @@ export default function Hero() {
 
       <div className="relative z-10">
         <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FCE500]">
-          Bonjour 👋
+          Bonjour
         </p>
 
         <h1 className="mb-1 text-3xl font-extrabold italic text-white">
@@ -110,7 +110,7 @@ export default function Hero() {
           <StatCard
             value={clubsCount.toString()}
             label="Clubs"
-            delta={clubsCount > 0 ? '↗ actifs' : '—'}
+            delta={clubsCount > 0 ? 'actifs' : '—'}
           />
         </div>
       </div>
