@@ -19,6 +19,8 @@ import type { ClubEvent } from '@/components/clubs/ClubUpcomingEvents';
 import { ClubUserRecommendationCard } from '@/components/clubs/ClubUserRecommendationCard';
 import { ClubRoutesCard } from '@/components/clubs/ClubRoutesCard';
 import type { ClubRoute } from '@/components/clubs/ClubRoutesCard';
+import { ClubEventsList } from '@/components/clubs/ClubEventsList';
+import { ClubRoutesList } from '@/components/clubs/ClubRoutesList';
 import { PageLoader } from '@/components/ui/loader';
 
 interface Club {
@@ -207,6 +209,12 @@ export default function ClubDetailPage() {
   const [members, setMembers] = useState<any[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
 
+  // Full tab lists (Calendrier / Itinéraires)
+  const [allEvents, setAllEvents] = useState<ClubEvent[]>([]);
+  const [allEventsLoading, setAllEventsLoading] = useState(false);
+  const [allRoutes, setAllRoutes] = useState<ClubRoute[]>([]);
+  const [allRoutesLoading, setAllRoutesLoading] = useState(false);
+
   // UI state
   const [inviteOpen, setInviteOpen] = useState(false);
 
@@ -308,6 +316,35 @@ export default function ClubDetailPage() {
     }
   }, [clubId]);
 
+  // ------------------------------------------------------------------
+  // Load full lists for the Calendrier / Itinéraires tabs
+  // ------------------------------------------------------------------
+  const loadAllEvents = useCallback(async () => {
+    if (!clubId) return;
+    setAllEventsLoading(true);
+    try {
+      const data = await backend.clubs.events(clubId, { upcoming: true, limit: 50 });
+      setAllEvents(Array.isArray(data) ? data : []);
+    } catch {
+      setAllEvents([]);
+    } finally {
+      setAllEventsLoading(false);
+    }
+  }, [clubId]);
+
+  const loadAllRoutes = useCallback(async () => {
+    if (!clubId) return;
+    setAllRoutesLoading(true);
+    try {
+      const data = await backend.clubs.routes(clubId, 50);
+      setAllRoutes(Array.isArray(data) ? data : []);
+    } catch {
+      setAllRoutes([]);
+    } finally {
+      setAllRoutesLoading(false);
+    }
+  }, [clubId]);
+
   useEffect(() => {
     loadClubData();
     loadFeed();
@@ -321,6 +358,12 @@ export default function ClubDetailPage() {
     }
   }, [activeTab, loadMembers]);
 
+  // Load full lists when their tab is active
+  useEffect(() => {
+    if (activeTab === 'calendrier') loadAllEvents();
+    if (activeTab === 'itineraires') loadAllRoutes();
+  }, [activeTab, loadAllEvents, loadAllRoutes]);
+
   // ------------------------------------------------------------------
   // Event join / leave
   // ------------------------------------------------------------------
@@ -331,9 +374,10 @@ export default function ClubDetailPage() {
       } else {
         await backend.clubs.leaveEvent(eventId);
       }
-      setEvents((prev) =>
-        prev.map((e) => (e.id === eventId ? { ...e, isJoined: joining } : e))
-      );
+      const sync = (prev: ClubEvent[]) =>
+        prev.map((e) => (e.id === eventId ? { ...e, isJoined: joining } : e));
+      setEvents(sync);
+      setAllEvents(sync);
     } catch (err) {
       console.error('Error joining/leaving event:', err);
     }
@@ -442,15 +486,15 @@ export default function ClubDetailPage() {
               )}
 
               {activeTab === 'itineraires' && (
-                <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">
-                  Vue itinéraires — à venir (endpoint GET /clubs/:id/routes).
-                </div>
+                <ClubRoutesList routes={allRoutes} loading={allRoutesLoading} />
               )}
 
               {activeTab === 'calendrier' && (
-                <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">
-                  Calendrier complet — à venir (endpoint GET /clubs/:id/events).
-                </div>
+                <ClubEventsList
+                  events={allEvents}
+                  loading={allEventsLoading}
+                  onJoin={handleJoinEvent}
+                />
               )}
 
               {activeTab === 'membres' && (
