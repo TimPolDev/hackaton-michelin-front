@@ -83,9 +83,11 @@ export interface CreateAmbassadorTirePayload {
 // ---- Tires ----
 export interface TiresQuery {
   bikeType?: string;
-  useCase?: string;
+  segment?: string;
   terrainType?: string;
   search?: string;
+  limit?: number;
+  offset?: number;
 }
 
 // A physical declination of a Tire product (specific size / build).
@@ -134,12 +136,42 @@ export interface Tire {
   minWeight?: number | null;
   isEBikeReady: boolean;
   isDiscontinued: boolean;
+  images: string[]; // product gallery; first one is the card thumbnail
   variants: TireVariant[];
+  ambassadors?: TireAmbassador[]; // ambassadeurs utilisant ce pneu (GET /tires/:id)
+}
+
+// Ambassadeur rattaché à un pneu, tel qu'aplati par GET /tires/:id.
+export interface TireAmbassador {
+  bikeType: string;
+  testimonial: string;
+  ambassador: {
+    id: string;
+    cyclist: { id: string; fullName: string | null };
+    discipline: string;
+    skillLevel: string;
+    photoUrl?: string | null;
+  };
 }
 
 export interface TiresListResponse {
   tires: Tire[];
   total: number;
+}
+
+// ---- Resellers ----
+export interface ResellersQuery {
+  country?: string; // FR, DE, UK...
+  region?: string; // EUN | EUS | ECA
+}
+
+// An authorized retail partner selling Michelin tires.
+export interface Reseller {
+  id: string;
+  name: string;
+  region: string;
+  country: string;
+  website: string;
 }
 
 // ---- Activities ----

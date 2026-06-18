@@ -15,6 +15,7 @@ import { ambassadorsApi } from './ambassadors';
 import { tiresApi } from './tires';
 import { activitiesApi } from './activities';
 import { recommendationsApi } from './recommendations';
+import { resellersApi } from './resellers';
 
 export const backend = {
   auth: authApi,
@@ -24,6 +25,7 @@ export const backend = {
   tires: tiresApi,
   activities: activitiesApi,
   recommendations: recommendationsApi,
+  resellers: resellersApi,
 };
 
 // Named re-exports if you prefer importing a single domain.
@@ -35,4 +37,5 @@ export {
   tiresApi,
   activitiesApi,
   recommendationsApi,
+  resellersApi,
 };
