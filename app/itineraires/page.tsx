@@ -12,18 +12,26 @@ const ActivityMapModal = dynamic(() => import('../activities/components/Activity
   ssr: false,
 });
 
+const BikeIcon = ({ type }: { type: string }) => {
+  const icons: Record<string, string[]> = {
+    ROAD: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M12 17.5V14l-3-3 4-3 2 3h2'],
+    MTB: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M12 17.5V14l-3-3 4-3 2 3h2', 'M8 8l2-2 2 2'],
+    GRAVEL: ['M18.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM5.5 21a3.5 3.5 0 100-7 3.5 3.5 0 000 7z', 'M12 17.5V14l-3-3 4-3 2 3h2'],
+  };
+  const paths = icons[type] || icons.ROAD;
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      {paths.map((path, i) => (<path key={i} d={path} />))}
+    </svg>
+  );
+};
+
 const BIKE_TYPES = [
   { value: '', label: 'Tous types' },
-  { value: 'ROAD', label: '🚴 Route', icon: '🚴' },
-  { value: 'MTB', label: '🚵 VTT', icon: '🚵' },
-  { value: 'GRAVEL', label: '🚴‍♂️ Gravel', icon: '🚴‍♂️' },
+  { value: 'ROAD', label: 'Route' },
+  { value: 'MTB', label: 'VTT' },
+  { value: 'GRAVEL', label: 'Gravel' },
 ];
-
-const BIKE_TYPE_ICONS: Record<string, string> = {
-  ROAD: '🚴',
-  MTB: '🚵',
-  GRAVEL: '🚴‍♂️',
-};
 
 export default function ItinerairesPage() {
   const [initialLoading, setInitialLoading] = useState(true);
@@ -202,11 +210,25 @@ export default function ItinerairesPage() {
                 <div className="flex flex-col md:flex-row">
                   {/* Miniature carte — bandeau sur mobile, colonne sur desktop */}
                   <div
-                    className="h-24 w-full md:h-auto md:w-32 md:min-h-[140px] bg-gradient-to-br from-[#27509B] to-[#1e3f7a] shrink-0 relative cursor-pointer"
+                    className="h-24 w-full md:h-auto md:w-32 md:min-h-[140px] bg-gradient-to-br from-[#27509B] to-[#1e3f7a] shrink-0 relative cursor-pointer overflow-hidden"
                     onClick={() => setSelectedRoute(route)}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-3xl md:text-4xl">
-                      🗺️
+                    {/* Topography pattern */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <defs>
+                        <pattern id={`topo-${route.id}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                          <path d="M0 5 Q5 3, 10 5 T20 5" stroke="#FCE500" fill="none" strokeWidth="0.5" opacity="0.3"/>
+                          <path d="M0 10 Q5 8, 10 10 T20 10" stroke="#FCE500" fill="none" strokeWidth="0.5" opacity="0.4"/>
+                          <path d="M0 15 Q5 13, 10 15 T20 15" stroke="#FCE500" fill="none" strokeWidth="0.5" opacity="0.5"/>
+                        </pattern>
+                      </defs>
+                      <rect width="100" height="100" fill={`url(#topo-${route.id})`}/>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                      </svg>
                     </div>
                   </div>
 
@@ -242,9 +264,9 @@ export default function ItinerairesPage() {
                       {/* Type et date */}
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg md:text-xl shrink-0">
-                            {BIKE_TYPE_ICONS[route.bikeType] || '🚴'}
-                          </span>
+                          <div className="w-6 h-6 rounded-full bg-[#27509B]/10 flex items-center justify-center text-[#27509B] shrink-0">
+                            <BikeIcon type={route.bikeType} />
+                          </div>
                           <h3 className="font-semibold text-gray-900 text-sm md:text-base">
                             {route.bikeType === 'ROAD' ? 'Sortie Route' :
                              route.bikeType === 'MTB' ? 'Sortie VTT' :
@@ -288,7 +310,7 @@ export default function ItinerairesPage() {
                           </div>
                         )}
                       </div>
-                    </div>
+                      </div>
 
                     {/* Bouton GPX — pleine largeur sur mobile */}
                     <Button

@@ -145,13 +145,21 @@ export default function ParametresPage() {
                   </Badge>
                 )}
                 {cyclist?.isAmbassador && (
-                  <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                    ⭐ Ambassadeur
+                  <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 flex items-center gap-1">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    Ambassadeur
                   </Badge>
                 )}
                 {!cyclist?.isAdmin && !cyclist?.isAmbassador && (
-                  <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">
-                    🚴 Cycliste
+                  <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center gap-1">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="18.5" cy="17.5" r="3.5"/>
+                      <circle cx="5.5" cy="17.5" r="3.5"/>
+                      <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+                    </svg>
+                    Cycliste
                   </Badge>
                 )}
               </div>
@@ -163,7 +171,12 @@ export default function ParametresPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">🚴</span>
+              <svg className="w-6 h-6 text-[#27509B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="18.5" cy="17.5" r="3.5"/>
+                <circle cx="5.5" cy="17.5" r="3.5"/>
+                <circle cx="15" cy="5" r="1"/>
+                <path d="M12 17.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
               Connexion Strava
             </CardTitle>
             <CardDescription>
@@ -199,18 +212,25 @@ export default function ParametresPage() {
                     <Button
                       onClick={handleSyncStrava}
                       disabled={syncing || resetting}
-                      className="flex-1 bg-[#27509B] hover:bg-[#1e3f7a] text-white"
+                      className="flex-1 bg-[#27509B] hover:bg-[#1e3f7a] text-white flex items-center gap-2"
                     >
-                      {syncing ? '🔄 Synchronisation...' : '🔄 Synchroniser maintenant'}
+                      <svg className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="23 4 23 10 17 10"/>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                      </svg>
+                      {syncing ? 'Synchronisation...' : 'Synchroniser maintenant'}
                     </Button>
 
                     <Button
                       onClick={handleDisconnectStrava}
                       disabled={disconnecting || resetting}
                       variant="outline"
-                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50 flex items-center gap-2"
                     >
-                      {disconnecting ? 'Déconnexion...' : '🔌 Déconnecter'}
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                      </svg>
+                      {disconnecting ? 'Déconnexion...' : 'Déconnecter'}
                     </Button>
                   </div>
 
@@ -218,18 +238,23 @@ export default function ParametresPage() {
                     onClick={handleResetActivities}
                     disabled={resetting || syncing || disconnecting}
                     variant="outline"
-                    className="w-full border-[#27509B]/40 text-[#27509B] hover:bg-[#27509B]/10"
+                    className="w-full border-[#27509B]/40 text-[#27509B] hover:bg-[#27509B]/10 flex items-center gap-2"
                   >
-                    {resetting ? '🔄 Réinitialisation en cours...' : '🗺️ Réimporter avec traces GPS'}
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                      <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {resetting ? 'Réinitialisation en cours...' : 'Réimporter avec traces GPS'}
                   </Button>
                 </div>
 
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">
-                    💡 La synchronisation importe les nouvelles activités depuis votre dernière connexion.
+                    La synchronisation importe les nouvelles activités depuis votre dernière connexion.
                   </p>
+
                   <p className="text-xs text-[#27509B]">
-                    🗺️ La réinitialisation supprime toutes vos activités et les réimporte avec les traces GPS pour les cartes.
+                    La réinitialisation supprime toutes vos activités et les réimporte avec les traces GPS pour les cartes.
                   </p>
                 </div>
               </>
