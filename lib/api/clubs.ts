@@ -10,6 +10,10 @@ export const clubsApi = {
   // GET /clubs/:id
   get: (id: string) => api.get(`/clubs/${id}`).then((r) => r.data),
 
+  // GET /clubs/by-invite/:token  — preview public d'une invitation
+  getByInvite: (token: string) =>
+    api.get(`/clubs/by-invite/${token}`).then((r) => r.data),
+
   // GET /clubs/:id/members
   members: (id: string) => api.get(`/clubs/${id}/members`).then((r) => r.data),
 

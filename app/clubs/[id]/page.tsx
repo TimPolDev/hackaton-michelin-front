@@ -87,9 +87,44 @@ function InviteModal({
   onClose: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const extractMessage = (err: any) => {
+      const m =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Impossible de générer un lien d'invitation.";
+      return Array.isArray(m) ? m.join('\n') : m;
+    };
+
+    backend.clubs.invitations(club.id)
+      .then((invitations: any[]) => {
+        const list = Array.isArray(invitations) ? invitations : [];
+        const now = new Date();
+        const active = list.find(
+          (inv) => !inv.isRevoked && new Date(inv.expiresAt) > now,
+        );
+        if (active) {
+          setToken(active.token);
+          return;
+        }
+        return backend.clubs.createInvitation(club.id, 30).then((inv: any) => {
+          setToken(inv.token);
+        });
+      })
+      .catch((err) => {
+        setToken(null);
+        setError(extractMessage(err));
+      })
+      .finally(() => setTokenLoading(false));
+  }, [club.id]);
+
   const inviteLink =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/clubs/join/${club.inviteCode ?? ''}`
+    typeof window !== 'undefined' && token
+      ? `${window.location.origin}/clubs/join/${token}`
       : '';
 
   const copy = (text: string) => {
@@ -108,26 +143,34 @@ function InviteModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-4 text-lg font-bold">Inviter des membres</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Lien d'invitation</label>
-            <div className="flex gap-2">
-              <Input value={inviteLink} readOnly />
-              <Button onClick={() => copy(inviteLink)}>
-                {copied ? 'Copié !' : 'Copier'}
-              </Button>
+        {tokenLoading ? (
+          <p className="text-sm text-muted-foreground">Chargement du lien…</p>
+        ) : token ? (
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-sm font-medium">Lien d'invitation</label>
+              <div className="flex gap-2">
+                <Input value={inviteLink} readOnly />
+                <Button onClick={() => copy(inviteLink)}>
+                  {copied ? 'Copié !' : 'Copier'}
+                </Button>
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Code d'invitation</label>
+              <div className="flex gap-2">
+                <Input value={token} readOnly />
+                <Button onClick={() => copy(token)}>
+                  {copied ? 'Copié !' : 'Copier'}
+                </Button>
+              </div>
             </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Code d'invitation</label>
-            <div className="flex gap-2">
-              <Input value={club.inviteCode ?? ''} readOnly />
-              <Button onClick={() => copy(club.inviteCode ?? '')}>
-                {copied ? 'Copié !' : 'Copier'}
-              </Button>
-            </div>
-          </div>
-        </div>
+        ) : (
+          <p className="text-sm text-red-500 whitespace-pre-line">
+            {error ?? "Impossible de générer un lien d'invitation. Vérifiez que vous êtes manager du club."}
+          </p>
+        )}
         <Button variant="ghost" className="mt-4 w-full" onClick={onClose}>
           Fermer
         </Button>
@@ -277,8 +320,12 @@ export default function ClubDetailPage() {
     try {
       await backend.clubs.leave(clubId);
       router.push('/clubs');
-    } catch {
-      alert('Impossible de quitter le club pour le moment. Réessayez plus tard.');
+    } catch (err: any) {
+      const apiMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Impossible de quitter le club pour le moment. Réessayez plus tard.';
+      alert(Array.isArray(apiMessage) ? apiMessage.join('\n') : apiMessage);
     }
   };
 
