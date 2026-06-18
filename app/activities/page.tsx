@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/loader';
 import { downloadGPX } from '@/lib/gpx-export';
 import ActivityMapModal from './components/ActivityMapModal';
 
@@ -107,7 +108,7 @@ export default function ActivitiesPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader text="Chargement de vos activités" />;
   }
 
   if (!cyclist?.stravaId) {

@@ -19,6 +19,7 @@ import type { ClubEvent } from '@/components/clubs/ClubUpcomingEvents';
 import { ClubUserRecommendationCard } from '@/components/clubs/ClubUserRecommendationCard';
 import { ClubRoutesCard } from '@/components/clubs/ClubRoutesCard';
 import type { ClubRoute } from '@/components/clubs/ClubRoutesCard';
+import { PageLoader } from '@/components/ui/loader';
 
 interface Club {
   id: string;
@@ -203,6 +204,8 @@ export default function ClubDetailPage() {
   const [recommendation, setRecommendation] = useState<any>(null);
   const [recommendationLoading, setRecommendationLoading] = useState(false);
   const [routes, setRoutes] = useState<ClubRoute[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [membersLoading, setMembersLoading] = useState(false);
 
   // UI state
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -289,11 +292,34 @@ export default function ClubDetailPage() {
     }
   }, [clubId]);
 
+  // ------------------------------------------------------------------
+  // Load members data
+  // ------------------------------------------------------------------
+  const loadMembers = useCallback(async () => {
+    if (!clubId) return;
+    setMembersLoading(true);
+    try {
+      const membersData = await backend.clubs.members(clubId);
+      setMembers(Array.isArray(membersData) ? membersData : []);
+    } catch {
+      setMembers([]);
+    } finally {
+      setMembersLoading(false);
+    }
+  }, [clubId]);
+
   useEffect(() => {
     loadClubData();
     loadFeed();
     loadSidebar();
   }, [loadClubData, loadFeed, loadSidebar]);
+
+  // Load members when membres tab is active
+  useEffect(() => {
+    if (activeTab === 'membres') {
+      loadMembers();
+    }
+  }, [activeTab, loadMembers]);
 
   // ------------------------------------------------------------------
   // Event join / leave
@@ -334,11 +360,7 @@ export default function ClubDetailPage() {
   // Render
   // ------------------------------------------------------------------
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted-foreground">Chargement…</div>
-      </div>
-    );
+    return <PageLoader text="Chargement du club" />;
   }
 
   if (!club) {
@@ -432,9 +454,61 @@ export default function ClubDetailPage() {
               )}
 
               {activeTab === 'membres' && (
-                <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">
-                  Liste des membres — à venir (endpoint GET /clubs/:id/members).
-                </div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <span>👥</span>
+                      Membres du club
+                    </CardTitle>
+                    <CardDescription>
+                      {members.length} membre{members.length > 1 ? 's' : ''}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {membersLoading ? (
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+                        ))}
+                      </div>
+                    ) : members.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">
+                        Aucun membre pour le moment
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {members.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#27509B] to-[#FCE500] flex items-center justify-center text-white font-bold">
+                                {member.cyclist?.fullName?.charAt(0)?.toUpperCase() || '?'}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900">
+                                  {member.cyclist?.fullName || 'Membre anonyme'}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Membre depuis {new Date(member.joinedAt).toLocaleDateString('fr-FR', {
+                                    month: 'long',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                            {member.isManager && (
+                              <span className="px-3 py-1 bg-[#FCE500] text-[#27509B] text-xs font-bold rounded-full">
+                                Manager
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
             </div>
 
