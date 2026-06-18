@@ -13,7 +13,7 @@ export default function Hero() {
       try {
         const [cyclistData, statsData] = await Promise.all([
           backend.cyclists.me(),
-          backend.cyclists.stats(),
+          backend.cyclists.stats({ period: 'all' }),
         ]);
         setCyclist(cyclistData);
         setStats(statsData);
@@ -97,7 +97,7 @@ export default function Hero() {
           <StatCard
             value={Math.round(stats?.totalDistance || 0).toString()}
             unit="km"
-            label="Ce mois"
+            label="Total"
             delta={stats?.distanceChange ? `${stats.distanceChange > 0 ? '▲' : '▼'} ${stats.distanceChange > 0 ? '+' : ''}${Math.round(stats.distanceChange)}%` : '—'}
           />
 

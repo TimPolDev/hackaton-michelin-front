@@ -265,7 +265,7 @@ export default function ParametresPage() {
         </Card>
 
         {/* Préférences */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>⚙️ Préférences</CardTitle>
             <CardDescription>Personnalisez votre expérience</CardDescription>
@@ -304,7 +304,7 @@ export default function ParametresPage() {
               </label>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Zone de danger */}
         <Card className="border-red-200">
