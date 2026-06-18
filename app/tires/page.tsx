@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { backend } from '@/lib/api';
-import type { Tire, TireVariant } from '@/lib/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Tire } from '@/lib/api';
+import { TireCard } from '@/components/tires/TireCard';
 
 const BIKE_TYPE_OPTIONS = [
   { value: '', label: 'Tous les vélos' },
@@ -13,86 +12,132 @@ const BIKE_TYPE_OPTIONS = [
   { value: 'GRAVEL', label: 'Gravel' },
   { value: 'COMMUTING & TOUR', label: 'Ville / Tourisme' },
   { value: 'E-BIKE', label: 'E-bike' },
+  { value: 'INNER TUBES', label: 'Chambres à air' },
+  { value: 'KIDS', label: 'Enfant' },
 ];
 
-const USE_CASE_OPTIONS = [
-  { value: '', label: 'Tous les usages' },
-  { value: 'RACING', label: 'Compétition' },
-  { value: 'ENDURANCE', label: 'Endurance' },
-  { value: 'TOURING', label: 'Randonnée' },
-  { value: 'LEISURE', label: 'Loisir' },
+const SEGMENT_OPTIONS = [
+  { value: '', label: 'Toutes les gammes' },
+  { value: 'PREMIUM COMPETITION LINE', label: 'Compétition' },
+  { value: 'PREMIUM RACING LINE', label: 'Racing' },
+  { value: 'PREMIUM PERFORMANCE LINE', label: 'Performance' },
+  { value: 'ACCESS LINE', label: 'Access' },
 ];
 
 const TERRAIN_OPTIONS = [
   { value: '', label: 'Tous les terrains' },
   { value: 'ASPHALT', label: 'Asphalte' },
   { value: 'OFFROAD', label: 'Tout-terrain' },
-  { value: 'MIXED', label: 'Mixte' },
+  { value: 'MIXED', label: 'Mixte (route & chemin)' },
 ];
+
+// Nombre de pneus chargés par batch lors du scroll.
+const PAGE_SIZE = 12;
 
 const selectClass =
   'rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-michelin-blue-dark';
 
-function splitTags(value?: string): string[] {
-  if (!value) return [];
-  return value
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
-}
-
-// Bike-type tags without the E-BIKE entry (shown separately via the E-bike badge).
-function bikeTypeTags(value?: string): string[] {
-  return splitTags(value).filter((t) => t.toUpperCase() !== 'E-BIKE');
-}
-
-/** Format a numeric range (min–max) with a unit, collapsing equal bounds. */
-function range(values: (number | null | undefined)[], unit: string): string | null {
-  const nums = values.filter((v): v is number => typeof v === 'number');
-  if (nums.length === 0) return null;
-  const min = Math.min(...nums);
-  const max = Math.max(...nums);
-  return min === max ? `${min} ${unit}` : `${min}–${max} ${unit}`;
-}
-
-function sizeRange(variants: TireVariant[]): string | null {
-  return range(variants.map((v) => v.widthMm), 'mm');
-}
-
-function weightRange(variants: TireVariant[]): string | null {
-  return range(variants.map((v) => v.weight), 'g');
-}
-
 export default function TiresPage() {
-  const router = useRouter();
   const [tires, setTires] = useState<Tire[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true); // chargement initial / changement de filtre
+  const [loadingMore, setLoadingMore] = useState(false); // chargement d'un batch supplémentaire
+  const [search, setSearch] = useState(''); // valeur affichée dans le champ (instantanée)
+  const [debouncedSearch, setDebouncedSearch] = useState(''); // valeur utilisée pour la requête
   const [bikeType, setBikeType] = useState('');
-  const [useCase, setUseCase] = useState('');
+  const [segment, setSegment] = useState('');
   const [terrainType, setTerrainType] = useState('');
 
+  // Refs lues par l'IntersectionObserver pour éviter les closures périmées.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const tiresRef = useRef<Tire[]>([]);
+  const totalRef = useRef(0);
+  const loadingRef = useRef(false); // garde anti-chargements concurrents
+  tiresRef.current = tires;
+  totalRef.current = total;
+
+  const hasMore = tires.length < total;
+
+  // Attend 300 ms après la dernière frappe avant de lancer la recherche.
   useEffect(() => {
-    const loadTires = async () => {
-      setLoading(true);
-      try {
-        const data = await backend.tires.list({
-          search: search.trim() || undefined,
-          bikeType: bikeType || undefined,
-          useCase: useCase || undefined,
-          terrainType: terrainType || undefined,
-        });
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Filtres actifs envoyés à l'API (sans pagination).
+  const filterParams = useCallback(
+    () => ({
+      search: debouncedSearch.trim() || undefined,
+      bikeType: bikeType || undefined,
+      segment: segment || undefined,
+      terrainType: terrainType || undefined,
+    }),
+    [debouncedSearch, bikeType, segment, terrainType],
+  );
+
+  // (Re)charge le premier batch dès qu'un filtre change.
+  useEffect(() => {
+    let cancelled = false;
+    loadingRef.current = true;
+    setLoading(true);
+    backend.tires
+      .list({ ...filterParams(), limit: PAGE_SIZE, offset: 0 })
+      .then((data) => {
+        if (cancelled) return;
         setTires(data.tires || []);
-      } catch (error) {
+        setTotal(data.total || 0);
+      })
+      .catch((error) => {
+        if (cancelled) return;
         console.error('Error loading tires:', error);
         setTires([]);
-      } finally {
+        setTotal(0);
+      })
+      .finally(() => {
+        if (cancelled) return;
         setLoading(false);
-      }
+        loadingRef.current = false;
+      });
+    return () => {
+      cancelled = true;
     };
+  }, [filterParams]);
 
-    loadTires();
-  }, [search, bikeType, useCase, terrainType]);
+  // Charge le batch suivant (déclenché par le scroll).
+  const loadMore = useCallback(async () => {
+    if (loadingRef.current) return;
+    if (tiresRef.current.length >= totalRef.current) return;
+    loadingRef.current = true;
+    setLoadingMore(true);
+    try {
+      const data = await backend.tires.list({
+        ...filterParams(),
+        limit: PAGE_SIZE,
+        offset: tiresRef.current.length,
+      });
+      setTires((prev) => [...prev, ...(data.tires || [])]);
+      setTotal(data.total || 0);
+    } catch (error) {
+      console.error('Error loading more tires:', error);
+    } finally {
+      loadingRef.current = false;
+      setLoadingMore(false);
+    }
+  }, [filterParams]);
+
+  // Observe la sentinelle en bas de liste pour déclencher le chargement.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: '300px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore, loading, hasMore]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,8 +166,8 @@ export default function TiresPage() {
               </option>
             ))}
           </select>
-          <select value={useCase} onChange={(e) => setUseCase(e.target.value)} className={selectClass}>
-            {USE_CASE_OPTIONS.map((o) => (
+          <select value={segment} onChange={(e) => setSegment(e.target.value)} className={selectClass}>
+            {SEGMENT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -145,65 +190,27 @@ export default function TiresPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tires.map((tire) => {
-              const size = sizeRange(tire.variants);
-              const weight = weightRange(tire.variants);
-              return (
-                <Card
-                  key={tire.id}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => router.push(`/tires/${tire.id}`)}
-                >
-                  <CardHeader>
-                    <CardTitle>{tire.rangeName}</CardTitle>
-                    <CardDescription>{tire.segment}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Types de vélo compatibles */}
-                    {(bikeTypeTags(tire.compatibleBikeTypes).length > 0 || tire.isEBikeReady) && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {bikeTypeTags(tire.compatibleBikeTypes).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-michelin-blue-dark"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {tire.isEBikeReady && (
-                          <span className="rounded-full bg-michelin-yellow px-2 py-0.5 text-xs font-semibold text-michelin-blue-dark">
-                            E-bike
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Plages agrégées sur les variantes */}
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      {size && (
-                        <div className="flex justify-between">
-                          <span>Largeurs</span>
-                          <span className="font-medium text-foreground">{size}</span>
-                        </div>
-                      )}
-                      {weight && (
-                        <div className="flex justify-between">
-                          <span>Poids</span>
-                          <span className="font-medium text-foreground">{weight}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span>Déclinaisons</span>
-                        <span className="font-medium text-foreground">
-                          {tire.variants.length} variante{tire.variants.length > 1 ? 's' : ''}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {tires.map((tire) => (
+              <TireCard key={tire.id} tire={tire} />
+            ))}
           </div>
+        )}
+
+        {/* Sentinelle d'infinite scroll + indicateur de chargement du batch suivant */}
+        {!loading && tires.length > 0 && (
+          <>
+            <div ref={sentinelRef} aria-hidden className="h-px w-full" />
+            {loadingMore && (
+              <div className="flex items-center justify-center py-8 text-muted-foreground">
+                Chargement...
+              </div>
+            )}
+            {!hasMore && (
+              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                Vous avez vu les {total} pneus du catalogue
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
