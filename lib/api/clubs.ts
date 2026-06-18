@@ -10,6 +10,10 @@ export const clubsApi = {
   // GET /clubs/:id
   get: (id: string) => api.get(`/clubs/${id}`).then((r) => r.data),
 
+  // GET /clubs/by-invite/:token  — preview public d'une invitation
+  getByInvite: (token: string) =>
+    api.get(`/clubs/by-invite/${token}`).then((r) => r.data),
+
   // GET /clubs/:id/members
   members: (id: string) => api.get(`/clubs/${id}/members`).then((r) => r.data),
 
@@ -39,4 +43,32 @@ export const clubsApi = {
 
   // DELETE /clubs/:id
   remove: (id: string) => api.delete(`/clubs/${id}`).then((r) => r.data),
+
+  // DELETE /clubs/:id/leave  — quitter le club en tant que membre
+  leave: (id: string) => api.delete(`/clubs/${id}/leave`).then((r) => r.data),
+
+  // GET /clubs/:id/feed?limit=N
+  // Returns FeedItem[]  { id, type: 'RIDE'|'ROUTE_SHARED'|'EVENT_JOINED', ... }
+  feed: (id: string, limit = 20) =>
+    api.get(`/clubs/${id}/feed`, { params: { limit } }).then((r) => r.data),
+
+  // GET /clubs/:id/events?upcoming=true&limit=N
+  events: (id: string, opts: { upcoming?: boolean; limit?: number } = {}) =>
+    api.get(`/clubs/${id}/events`, { params: opts }).then((r) => r.data),
+
+  // POST /events/:eventId/join
+  joinEvent: (eventId: string) =>
+    api.post(`/events/${eventId}/join`).then((r) => r.data),
+
+  // DELETE /events/:eventId/join
+  leaveEvent: (eventId: string) =>
+    api.delete(`/events/${eventId}/join`).then((r) => r.data),
+
+  // GET /clubs/:id/routes?limit=N
+  routes: (id: string, limit = 10) =>
+    api.get(`/clubs/${id}/routes`, { params: { limit } }).then((r) => r.data),
+
+  // GET /clubs/:id/tire-renewals
+  tireRenewals: (id: string) =>
+    api.get(`/clubs/${id}/tire-renewals`).then((r) => r.data),
 };
