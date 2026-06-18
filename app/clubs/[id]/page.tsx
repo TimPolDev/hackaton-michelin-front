@@ -16,8 +16,7 @@ import type { FeedItem } from '@/components/clubs/ClubFeed';
 import { ClubLeaderboardCard } from '@/components/clubs/ClubLeaderboardCard';
 import { ClubUpcomingEvents } from '@/components/clubs/ClubUpcomingEvents';
 import type { ClubEvent } from '@/components/clubs/ClubUpcomingEvents';
-import { ClubTireRenewalCard } from '@/components/clubs/ClubTireRenewalCard';
-import type { TireRenewalMember } from '@/components/clubs/ClubTireRenewalCard';
+import { ClubUserRecommendationCard } from '@/components/clubs/ClubUserRecommendationCard';
 import { ClubRoutesCard } from '@/components/clubs/ClubRoutesCard';
 import type { ClubRoute } from '@/components/clubs/ClubRoutesCard';
 
@@ -201,7 +200,8 @@ export default function ClubDetailPage() {
   // Sidebar
   const [events, setEvents] = useState<ClubEvent[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
-  const [tireRenewals, setTireRenewals] = useState<TireRenewalMember[]>([]);
+  const [recommendation, setRecommendation] = useState<any>(null);
+  const [recommendationLoading, setRecommendationLoading] = useState(false);
   const [routes, setRoutes] = useState<ClubRoute[]>([]);
 
   // UI state
@@ -256,7 +256,7 @@ export default function ClubDetailPage() {
   }, [clubId]);
 
   // ------------------------------------------------------------------
-  // Load sidebar data (events, tire renewals, routes)
+  // Load sidebar data (events, user recommendation, routes)
   // ------------------------------------------------------------------
   const loadSidebar = useCallback(async () => {
     if (!clubId) return;
@@ -271,13 +271,14 @@ export default function ClubDetailPage() {
       setEventsLoading(false);
     }
 
+    setRecommendationLoading(true);
     try {
-      const renewalsData = await backend.clubs.tireRenewals(clubId);
-      // back returns { threshold, members: [...] }
-      const members = renewalsData?.members ?? (Array.isArray(renewalsData) ? renewalsData : []);
-      setTireRenewals(members);
+      const recsData = await backend.recommendations.list();
+      setRecommendation(recsData?.recommendations?.[0] || null);
     } catch {
-      setTireRenewals([]);
+      setRecommendation(null);
+    } finally {
+      setRecommendationLoading(false);
     }
 
     try {
@@ -446,9 +447,10 @@ export default function ClubDetailPage() {
                 onViewAll={() => setActiveTab('calendrier')}
               />
 
-              <ClubTireRenewalCard
-                members={tireRenewals}
-                onViewRecommendations={() => router.push('/recommendations')}
+              <ClubUserRecommendationCard
+                recommendation={recommendation}
+                loading={recommendationLoading}
+                onViewDetails={(tireId) => router.push(`/tires/${tireId}`)}
               />
 
               <ClubRoutesCard
