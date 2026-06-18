@@ -6,6 +6,7 @@ import { Trophy, Mountain, Route, Crown, Medal, Users } from 'lucide-react';
 import { backend } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageLoader } from '@/components/ui/page-loader';
 
 type Metric = 'distance' | 'elevation';
 type Period = 'all' | 'season' | 'month' | 'week';
@@ -112,23 +113,25 @@ export default function ClassementPage() {
     metric === 'distance' ? value.toFixed(0) : Math.round(value).toLocaleString();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement du classement..." />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* En-tête */}
-        <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-michelin-blue text-michelin-yellow">
-            <Trophy className="h-6 w-6" />
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
+        <div className="max-w-5xl mx-auto flex items-center gap-3 md:gap-4">
+          <div className="flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <Trophy className="h-5 w-5 md:h-6 md:w-6 text-[#F5C400]" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-michelin-navy">Classement</h1>
-            <p className="text-muted-foreground">Les cyclistes les plus actifs de la communauté</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1">Classement</h1>
+            <p className="text-sm md:text-base text-white/70">Les cyclistes les plus actifs de la communauté</p>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtres de période */}
         <div className="mb-6">
           <h2 className="mb-3 text-sm font-semibold text-gray-700">Période</h2>

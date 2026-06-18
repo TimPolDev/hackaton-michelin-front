@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function ParametresPage() {
   const router = useRouter();
@@ -102,16 +103,16 @@ export default function ParametresPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement des paramètres..." />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-[#27509B] text-white px-5 py-8">
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-extrabold italic mb-2">Paramètres</h1>
-          <p className="text-white/70">Gérez votre compte et vos préférences</p>
+          <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Paramètres</h1>
+          <p className="text-sm md:text-base text-white/70">Gérez votre compte et vos préférences</p>
         </div>
       </div>
 
@@ -176,7 +177,7 @@ export default function ParametresPage() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FC4C02]">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#27509B]">
                         <span className="text-2xl">✓</span>
                       </div>
                       <div>
@@ -198,7 +199,7 @@ export default function ParametresPage() {
                     <Button
                       onClick={handleSyncStrava}
                       disabled={syncing || resetting}
-                      className="flex-1 bg-[#FC4C02] hover:bg-[#E34402] text-white"
+                      className="flex-1 bg-[#27509B] hover:bg-[#1e3f7a] text-white"
                     >
                       {syncing ? '🔄 Synchronisation...' : '🔄 Synchroniser maintenant'}
                     </Button>
@@ -217,7 +218,7 @@ export default function ParametresPage() {
                     onClick={handleResetActivities}
                     disabled={resetting || syncing || disconnecting}
                     variant="outline"
-                    className="w-full border-orange-300 text-orange-700 hover:bg-orange-50"
+                    className="w-full border-[#27509B]/40 text-[#27509B] hover:bg-[#27509B]/10"
                   >
                     {resetting ? '🔄 Réinitialisation en cours...' : '🗺️ Réimporter avec traces GPS'}
                   </Button>
@@ -227,7 +228,7 @@ export default function ParametresPage() {
                   <p className="text-xs text-muted-foreground">
                     💡 La synchronisation importe les nouvelles activités depuis votre dernière connexion.
                   </p>
-                  <p className="text-xs text-orange-600">
+                  <p className="text-xs text-[#27509B]">
                     🗺️ La réinitialisation supprime toutes vos activités et les réimporte avec les traces GPS pour les cartes.
                   </p>
                 </div>
@@ -235,12 +236,12 @@ export default function ParametresPage() {
             ) : (
               <>
                 {/* Non connecté */}
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <p className="text-sm text-orange-800 mb-3">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 mb-3">
                     Connectez votre compte Strava pour importer automatiquement vos activités
                     et obtenir des recommandations de pneus personnalisées.
                   </p>
-                  <ul className="text-xs text-orange-700 space-y-1 ml-4 list-disc">
+                  <ul className="text-xs text-blue-700 space-y-1 ml-4 list-disc">
                     <li>Import automatique de vos sorties</li>
                     <li>Statistiques détaillées</li>
                     <li>Traces GPS sur cartes interactives</li>
@@ -250,7 +251,7 @@ export default function ParametresPage() {
 
                 <Button
                   onClick={() => router.push('/strava/connect')}
-                  className="w-full bg-[#FC4C02] hover:bg-[#E34402] text-white py-6"
+                  className="w-full bg-[#27509B] hover:bg-[#1e3f7a] text-white py-6"
                 >
                   <span className="flex items-center gap-2">
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

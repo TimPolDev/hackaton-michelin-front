@@ -63,10 +63,10 @@ function StravaConnectContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-orange-100 overflow-hidden">
-        {/* Header Strava style */}
-        <div className="bg-gradient-to-r from-[#FC4C02] to-[#E34402] text-white p-8 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-blue-100 overflow-hidden">
+        {/* Header */}
+        <div className="bg-[#27509B] text-white p-8 text-center">
           <svg className="w-16 h-16 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
           </svg>
@@ -97,26 +97,26 @@ function StravaConnectContent() {
 
           {!loading && !success && (
             <>
-              <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 p-5 rounded-xl">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 p-5 rounded-xl">
                 <p className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="text-2xl">✨</span>
                   Pourquoi connecter Strava ?
                 </p>
                 <ul className="text-sm text-gray-700 space-y-2">
                   <li className="flex items-start gap-2">
-                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span className="text-[#27509B] font-bold">•</span>
                     <span>Analyse automatique de votre profil de roulage</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span className="text-[#27509B] font-bold">•</span>
                     <span>Recommandations de pneus Michelin personnalisées</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span className="text-[#27509B] font-bold">•</span>
                     <span>Traces GPS et statistiques détaillées</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#FC4C02] font-bold">•</span>
+                    <span className="text-[#27509B] font-bold">•</span>
                     <span>Participation aux classements de clubs</span>
                   </li>
                 </ul>
@@ -126,7 +126,7 @@ function StravaConnectContent() {
                 <Button
                   onClick={initiateStravaConnection}
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#FC4C02] to-[#E34402] hover:from-[#E34402] hover:to-[#D03802] text-white font-bold py-6 text-lg shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-[#27509B] hover:bg-[#1e3f7a] text-white font-bold py-6 text-lg shadow-lg hover:shadow-xl transition-all"
                 >
                   <span className="flex items-center gap-3">
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">

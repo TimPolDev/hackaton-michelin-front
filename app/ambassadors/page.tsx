@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function AmbassadorsPage() {
   const router = useRouter();
@@ -27,19 +28,20 @@ export default function AmbassadorsPage() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement des ambassadeurs..." />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold">Ambassadeurs Michelin</h2>
-          <p className="text-muted-foreground">
-            Découvrez les athlètes qui font confiance à Michelin
-          </p>
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Ambassadeurs Michelin</h1>
+          <p className="text-sm md:text-base text-white/70">Découvrez les athlètes qui font confiance à Michelin</p>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {ambassadors.map((ambassador) => (
             <Card

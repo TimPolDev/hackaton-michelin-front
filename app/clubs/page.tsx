@@ -6,6 +6,7 @@ import { backend } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function ClubsPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function ClubsPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+    return <PageLoader label="Chargement des clubs..." />;
   }
 
   return (
@@ -83,24 +84,25 @@ export default function ClubsPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
+        <div className="max-w-7xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-3xl font-bold">Mes Clubs</h2>
-            <p className="text-muted-foreground">
-              Rejoignez ou créez un club cycliste
-            </p>
+            <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Mes Clubs</h1>
+            <p className="text-sm md:text-base text-white/70">Rejoignez ou créez un club cycliste</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowJoinModal(true)}>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" className="text-sm bg-white/10 border-white/30 text-white hover:bg-white/20" onClick={() => setShowJoinModal(true)}>
               Rejoindre un club
             </Button>
-            <Button onClick={() => router.push('/clubs/create')}>
+            <Button className="text-sm bg-[#F5C400] hover:bg-[#e0b200] text-[#27509B] font-bold" onClick={() => router.push('/clubs/create')}>
               Créer un club
             </Button>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cyclist?.clubMemberships?.map((membership: any) => (
             <Card key={membership.club.id} className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -134,3 +136,4 @@ export default function ClubsPage() {
     </div>
   );
 }
+

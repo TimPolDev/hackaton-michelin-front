@@ -96,14 +96,15 @@ export default function TiresPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold">Catalogue de Pneus Michelin</h2>
-          <p className="text-muted-foreground">
-            Parcourez la gamme de pneus et trouvez le modèle adapté à votre pratique
-          </p>
+      {/* Header */}
+      <div className="bg-[#27509B] text-white px-4 py-6 md:px-6 md:py-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-extrabold italic mb-1 md:mb-2">Catalogue de Pneus Michelin</h1>
+          <p className="text-sm md:text-base text-white/70">Parcourez la gamme de pneus et trouvez le modèle adapté à votre pratique</p>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filtres */}
         <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-center">
           <input
