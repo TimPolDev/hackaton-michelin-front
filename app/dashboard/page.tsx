@@ -126,7 +126,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-yellow-50/20">
+    <div className="min-h-screen bg-gray-50">
       <Hero/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Recommandation de pneu - EN HAUT ET MISE EN AVANT */}
@@ -188,7 +188,7 @@ export default function DashboardPage() {
 
         {/* Show sync button ONLY if period is "all" and we have 0 activities */}
         {stats && stats.activityCount === 0 && selectedPeriod === 'all' && (
-          <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-orange-200 shadow-lg">
+          <Card className="bg-orange-50 border-2 border-orange-200 shadow-lg">
             <CardContent className="flex items-center justify-between p-6">
               <div className="flex-1">
                 <h3 className="text-lg font-bold mb-1 text-orange-900">Aucune activité trouvée</h3>
@@ -234,7 +234,7 @@ export default function DashboardPage() {
                 className={`
                   px-6 py-3 rounded-xl font-semibold text-sm transition-all transform hover:scale-105
                   ${selectedPeriod === period.value
-                    ? 'bg-gradient-to-r from-[#27509B] to-[#1d3d7a] text-white shadow-lg scale-105'
+                    ? 'bg-[#27509B] text-white shadow-lg scale-105'
                     : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-[#27509B] hover:text-[#27509B] shadow-md'
                   }
                   ${statsLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
@@ -319,7 +319,7 @@ export default function DashboardPage() {
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className={`shadow-lg hover:shadow-xl transition-all ${statsLoading ? 'opacity-50' : ''}`}>
-              <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-transparent">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-600 flex items-center gap-2">
                   <span className="text-2xl">⚡</span>
                   Vitesse moyenne
@@ -337,7 +337,7 @@ export default function DashboardPage() {
             </Card>
 
             <Card className={`shadow-lg hover:shadow-xl transition-all ${statsLoading ? 'opacity-50' : ''}`}>
-              <CardHeader className="pb-3 bg-gradient-to-r from-yellow-50 to-transparent">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-600 flex items-center gap-2">
                   <span className="text-2xl">🗺️</span>
                   Distribution terrain
@@ -357,7 +357,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                       <div
-                        className="h-full bg-gradient-to-r from-[#27509B] to-[#1d3d7a] rounded-full transition-all duration-500"
+                        className="h-full bg-[#27509B] rounded-full transition-all duration-500"
                         style={{ width: `${(stats.terrainDistribution?.asphalt || 0) * 100}%` }}
                       />
                     </div>
@@ -375,7 +375,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                       <div
-                        className="h-full bg-gradient-to-r from-green-600 to-green-700 rounded-full transition-all duration-500"
+                        className="h-full bg-green-600 rounded-full transition-all duration-500"
                         style={{ width: `${(stats.terrainDistribution?.offroad || 0) * 100}%` }}
                       />
                     </div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                       <div
-                        className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full transition-all duration-500"
+                        className="h-full bg-orange-500 rounded-full transition-all duration-500"
                         style={{ width: `${(stats.terrainDistribution?.mixed || 0) * 100}%` }}
                       />
                     </div>
