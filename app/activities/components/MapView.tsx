@@ -36,7 +36,7 @@ export default function MapView({ polyline: encodedPolyline, startLatitude, star
       }
 
       // Créer la carte centrée sur la première coordonnée
-      const firstPoint = coordinates[0];
+      const firstPoint = coordinates[0] as [number, number];
       const map = L.map(mapContainer.current).setView(firstPoint, 13);
 
       mapInstance.current = map;
@@ -48,7 +48,7 @@ export default function MapView({ polyline: encodedPolyline, startLatitude, star
       }).addTo(map);
 
       // Dessiner la trace
-      const routeLine = L.polyline(coordinates, {
+      const routeLine = L.polyline(coordinates as [number, number][], {
         color: '#27509B', // Bleu Michelin
         weight: 4,
         opacity: 0.8,
@@ -56,15 +56,15 @@ export default function MapView({ polyline: encodedPolyline, startLatitude, star
 
       // Ajouter un marqueur de départ
       if (coordinates.length > 0) {
-        L.marker(coordinates[0])
+        L.marker(coordinates[0] as [number, number])
           .addTo(map)
           .bindPopup('Départ');
       }
 
       // Ajouter un marqueur d'arrivée si différent du départ
       if (coordinates.length > 1) {
-        const endPoint = coordinates[coordinates.length - 1];
-        const startPoint = coordinates[0];
+        const endPoint = coordinates[coordinates.length - 1] as [number, number];
+        const startPoint = coordinates[0] as [number, number];
 
         // Vérifier si le point de départ et d'arrivée sont différents
         if (endPoint[0] !== startPoint[0] || endPoint[1] !== startPoint[1]) {
