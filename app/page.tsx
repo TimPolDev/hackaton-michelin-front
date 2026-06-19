@@ -112,7 +112,7 @@ export default function HomePage() {
                   <circle cx="12" cy="12" r="2" fill="currentColor"/>
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Recommandations IA</h3>
+              <h3 className="text-2xl font-bold mb-4 text-gray-900">Recommandations</h3>
               <p className="text-gray-600 leading-relaxed">
                 Notre algorithme intelligent analyse vos données Strava pour vous recommander
                 les pneus Michelin parfaitement adaptés à votre style de roulage

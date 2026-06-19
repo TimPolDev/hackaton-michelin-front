@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageLoader } from '@/components/ui/page-loader';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +16,20 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  // Si l'utilisateur est déjà connecté, on ne montre pas le formulaire :
+  // on le renvoie vers le dashboard.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace('/dashboard');
+      } else {
+        setCheckingSession(false);
+      }
+    });
+  }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +63,10 @@ export default function SignupPage() {
     router.push('/onboarding');
     router.refresh();
   };
+
+  if (checkingSession) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-yellow-50 p-4">

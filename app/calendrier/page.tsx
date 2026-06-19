@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Calendar, MapPin, Users, Route, Mountain, ChevronRight } from 'lucide-react';
 import { backend } from '@/lib/api';
-import { fetchMe } from '@/lib/hooks/use-me';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 
@@ -47,7 +46,7 @@ export default function CalendrierPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const cyclist = await fetchMe();
+        const cyclist = await backend.cyclists.me();
         setIsLoggedIn(true);
 
         const memberships: { club: { id: string; name: string } }[] =
